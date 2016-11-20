@@ -16,7 +16,7 @@ setup(
     license='MIT License',
     description='A Django app to accept literary submissions.',
     long_description=README,
-    url='https://www.example.com/',
+    url='https://github.com/OpenFurry/submitify',
     author='OpenFurry contributors',
     author_email='makyo@drab-makyo.com',
     classifiers=[
