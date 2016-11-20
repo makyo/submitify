@@ -109,11 +109,11 @@ Further information
 Source, issues, and further information:
   `GitHub <https://github.com/OpenFurry/submitify>`__
 Author
-  `The OpenFurry Contributors <http://openfurry.org>`__
+  `The OpenFurry Contributors <http://OpenFurry.org>`__
 
-.. |Build Status| image:: https://travis-ci.org/openfurry/submitify.svg?branch=master
-   :target: https://travis-ci.org/openfurry/submitify
-.. |Coverage Status| image:: https://coveralls.io/repos/github/openfurry/submitify/badge.svg?branch=master
-   :target: https://coveralls.io/github/openfurry/submitify?branch=master
+.. |Build Status| image:: https://travis-ci.org/OpenFurry/submitify.svg?branch=master
+   :target: https://travis-ci.org/OpenFurry/submitify
+.. |Coverage Status| image:: https://coveralls.io/repos/github/OpenFurry/submitify/badge.svg?branch=master
+   :target: https://coveralls.io/github/OpenFurry/submitify?branch=master
 .. |PyPI| image:: https://img.shields.io/pypi/v/django-submitify.svg
    :target: https://pypi.python.org/pypi/django-submitify/
