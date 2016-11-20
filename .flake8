@@ -1,0 +1,2 @@
+[flake8]
+exclude = venv,manage.py,*migrations*,settings.py,wsgi.py

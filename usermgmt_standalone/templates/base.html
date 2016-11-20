@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Submitify{% if title %} - {{ title }}{% endif %}</title>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="{% url 'submitify:list_calls' %}">Submitify</a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'usermgmt_standalone:view_user' username=user.username %}">My calls</a></li>
+                            <li><a href="{% url 'logout' %}">Log out</a></li>
+                        {% else %}
+                            <li><a href="{% url 'login' %}">Log in</a></li>
+                            <li><a href="{% url 'usermgmt_standalone:register' %}">Register</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <section class="main container-fluid" id="start-of-content">
+            <header class="page-header">
+                {% if title or flatpage.title %}
+                    <h1>{% if flatpage %}{{ flatpage.title }}{% else %}{{ title|safe }}{% endif %}{% if subtitle %} <small>{{ subtitle|safe }}</small>{% endif %}</h1>
+                {% else %}
+                    <h1>Submitify <small>Connecting writers and editors</small></h1>
+                {% endif %}
+            </header>
+            {% if messages %}
+                <section class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-dismissable alert-{{ message.tags }}" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            {{ message|safe }}
+                        </div>
+                    {% endfor %}
+                </section>
+            {% endif %}
+            <section class="content">
+                {% block content %}{% endblock %}
+            </section>
+        </section>
+    </body>
+</html>

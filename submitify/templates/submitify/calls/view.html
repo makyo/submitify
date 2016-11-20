@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<style>
+.striped-list li {
+    padding: 4px;
+}
+.striped-list li:nth-child(odd) {
+    background-color: #f8f8f8;
+}
+</style>
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        {% if user == call.owner and call.get_next_status %}
+            <p class="text-right">
+                <a href="{% url 'submitify:next_step' call_id=call.id call_slug=call.title|slugify %}" role="button" class="btn btn-primary">Change status to <em>{{ call.get_next_status.1|lower }}</em></a>
+            </p>
+        {% endif %}
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {{ call.about_rendered|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3 col-md-offset-2">
+        <h2>Details</h2>
+        <dl>
+            <dt>Genre</dt>
+            <dd>{{ call.genre }}</dd>
+            <dt>Submission length</dt>
+            <dd>{{ call.length }}</dd>
+            <dt>Paid</dt>
+            <dd>{{ call.paid|yesno }}</dd>
+            <dt>Created</dt>
+            <dd>
+                <abbr data-toggle="tooltip" data-placement="bottom" title="{{ call.ctime|date:'r' }}">
+                    {{ call.ctime|naturaltime }}
+                </abbr>
+            </dd>
+            <dt>Ends</dt>
+            <dd>{{ call.end_date|naturalday }}</dd>
+            <dt>Anonymous submissions</dt>
+            <dd>{{ call.anonymous_submissions|yesno }}</dd>
+            <dt>Open submissions</dt>
+            <dd>
+                {% if call.invite_only %}
+                    No; submissions limited
+                    {% if user in call.readers %}
+                        to {{ call.restricted_to.all|join:', ' }}
+                    {% endif %}
+                {% else %}
+                    Yes
+                {% endif %}
+            </dd>
+            <dt>Slush-pile readers can submit</dt>
+            <dd>{{ call.readers_can_submit|yesno }}</dd>
+            {% for guidelines in call.guideline_set.all %}
+                <dt>{{ guideline.key }}</dt>
+                <dd>{{ guideline.value }}</dd>
+            {% endfor %}
+        </dl>
+    </div>
+    <div class="col-md-5">
+        {% if user.is_authenticated %}
+            <h2>Submit</h2>
+            {% if can_submit %}
+                <p>Want to submit to {{ call.title }}?  Great!  Here's what you need to know</p>
+                <p>Submissions require your work to be in a file supported by Submitify.  This means that you may submit your work in the following formats: Microsoft docx, epub, html, LaTeX, markdown, LibreOffice odt, Emacs org-mode, reStructured Text, textile, or twiki.</p>
+                <p>All images and non-essential formatting will be stripped from your submission.</p>
+                {% if call.anonymous_submissions %}
+                    <p>Since submissions are anonymous, please make sure that your submission file and cover letter are completely anonymous - remove your name from both!</p>
+                {% endif %}
+                <form method="post" action="{% url 'submitify:create_submission' call_id=call.id call_slug=call.title|slugify %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_title">Submission Title</label>
+                        {{ form.title.errors }}
+                        <input type="text" class="form-control" id="id_title" name="title" maxlength="200"{% if form.title.value %} value="{{ form.title.value }}"{% endif %} />
+                    </div>
+                    <div class="form-group">
+                        <label for="id_cover">Cover letter</label>
+                        {{ form.cover.errors }}
+                        <textarea class="form-control" id="id_cover" name="cover">{% if form.cover.value %}{{ form.cover.value }}{% endif %}</textarea>
+                        <p class="help-block">Markdown permitted</p>
+                    </div>
+                    <div class="form-group">
+                        {{ form.original_file.label_tag }}
+                        <input type="file" class="form-control" id="id_original_file" name="original_file" value="{{ form.original_file.value }}" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            {% elif call.owner == user %}
+                <h2>Send a notification</h2>
+                <a href="{% url 'submitify:send_notification' call_id=call.id call_slug=call.title|slugify notification_type='basic' %}" class="btn btn-primary" role="button">To all authors</a>
+                {% if call.status >= 4 %}
+                    <a href="{% url 'submitify:send_notification' call_id=call.id call_slug=call.title|slugify notification_type='accept' %}" class="btn btn-primary" role="button">To accepted authors</a>
+                    <a href="{% url 'submitify:send_notification' call_id=call.id call_slug=call.title|slugify notification_type='reject' %}" class="btn btn-primary" role="button">To rejected authors</a>
+                {% endif %}
+            {% else %}
+                <p>You are not able to submit to this call</p>
+            {% endif %}
+        {% else %}
+            <p>Please <a href="{% url 'login' %}">log in</a> to submit</p>
+        {% endif %}
+    </div>
+</div>
+{% if user.is_authenticated and call.notification_set.count > 0 %}
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <h2>Notifications</h2>
+            {% for notification in call.notification_set.all %}
+                {% if user == call.owner or user in notification.targets %}
+                    <div class="panel panel-default">
+                        <div class="panel-header">
+                            <a href="{{ notification.get_absolute_url }}">{{ notification.get_notification_type_display }}</a> from {{ call.owner }} <abbr data-toggle="tooltip" data-placement="bottom" title="{{ notification.ctime|date:'r' }}">
+                                {{ notification.ctime|naturaltime }}
+                            </abbr>
+                        </div>
+                        <div class="panel-body">
+                            {{ notification.body_rendered|safe }}
+                        </div>
+                    </div>
+                {% endif %}
+            {% empty %}
+                <p><em>No notifications to show</em></p>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+{% if with_submissions %}
+    <div class="row">
+        <div class="col-md-3 col-md-offset-2">
+            <h2>Readers</h2>
+            <ul class="list-unstyled striped-list">
+                {% for reader in call.readers.all %}
+                    <li>{{ reader.username }}</li>
+                {% empty %}
+                    <li><em>No slush-pile readers</em></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-md-5">
+            <h2>Submissions</h2>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        {% if not call.anonymous_submissions %}
+                            <th>Author</th>
+                        {% endif %}
+                        <th>Words</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for submission in call.submission_set.all %}
+                        <tr>
+                            <td>
+                                <a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a>
+                                {% if call.owner == user %}
+                                    <p class="small">
+                                        {{ submission.review_set.count }}/{{ call.reviews_per_submission }} needed reviews &bullet;
+                                        {% with stats=submission.get_review_stats %}
+                                            <strong class="text-success">{{ stats.accept }}</strong>/<strong class="text-danger">{{ stats.reject }}</strong> &bullet;
+                                            Average rating: {{ stats.average_rating }}
+                                        {% endwith %}
+                                    </p>
+                                {% endif %}
+                            </td>
+                            {% if not call.anonymous_submissions %}
+                                <td>{{ submission.owner.username }}</td>
+                            {% endif %}
+                            <td>{{ submission.wordcount }}</td>
+                            <td>
+                                <abbr data-toggle="tooltip" data-placement="bottom" title="{{ submission.ctime|date:'r' }}">
+                                    {{ submission.ctime|naturalday }}
+                                </abbr>
+                            </td>
+                            <td class="{{ submission.get_class_for_status }}">{{ submission.get_status_display }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

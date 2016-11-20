@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<style>
+.submission-text {
+    font-family: monospace;
+    line-height: 2.4;
+    max-height: 50ex;
+    overflow: scroll;
+}
+.submission-text p {
+    margin: 0;
+}
+.submission-text p::before {
+    content: '    ';
+    padding-left: 4em;
+}
+</style>
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <p>
+            <a href="{{ call.get_absolute_url }}" role="button" class="btn btn-default">&larr; Back to {{ call.title }}</a>
+        </p>
+        {% if call.owner == user and call.status > 3 and submission.status not in 'ar'|make_list %}
+            <h2>Submission actions</h2>
+            <p>These are immediate and irreversable.  Choose wisely!</p>
+            <p>
+                <a href="{% url 'submitify:accept_submission' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}" role="button" class="btn btn-success">
+                    <span class="glyphicon glyphicon-ok"></span>
+                    Accept submission
+                </a>
+                <a href="{% url 'submitify:reject_submission' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}" role="button" class="btn btn-danger">
+                    <span class="glyphicon glyphicon-remove"></span>
+                    Reject submission
+                </a>
+            </p>
+        {% endif %}
+        <h2>Submission information</h2>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {{ submission.cover|safe }}
+                <p class="text-muted">
+                    Created <abbr data-toggle="tooltip" data-placement="bottom" title="{{ submission.ctime|date:'r' }}">
+                        {{ submission.ctime|naturalday }}
+                    </abbr> &bullet;
+                    {{ submission.wordcount }} words &bullet;
+                    {{ submission.get_status_display }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <h2>Submission text</h2>
+        <p class="small">
+            <a href="{% url 'submitify:view_submission_text' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}" target="_blank">View in own window</a> &bullet;
+            <a href="{% url 'submitify:view_submission_file' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}">View as PDF</a>
+        </p>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="submission-text">
+                    {{ submission.submission_text|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <h2>Review</h2>
+        <form method="post" action="{% if review.id %}{% url 'submitify:edit_review' call_id=call.id call_slug=call.title|slugify submission_id=submission.id review_id=review.id %}{% else %}{% url 'submitify:create_review' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}{% endif %}">
+            {% csrf_token %}
+            <div class="radio">
+                <strong>Rating</strong><br />
+                <label>
+                    <input type="radio" name="rating" value="1"{% if form.rating.value == 1 %} checked{% endif %}> 1
+                </label>
+                <label>
+                    <input type="radio" name="rating" value="2"{% if form.rating.value == 2 %} checked{% endif %}> 2
+                </label>
+                <label>
+                    <input type="radio" name="rating" value="3"{% if form.rating.value == 3 %} checked{% endif %}> 3
+                </label>
+                <label>
+                    <input type="radio" name="rating" value="4"{% if form.rating.value == 4 %} checked{% endif %}> 4
+                </label>
+                <label>
+                    <input type="radio" name="rating" value="5"{% if form.rating.value == 5 %} checked{% endif %}> 5
+                </label>
+            </div>
+            <div class="form-group">
+                {{ form.yea_nay.label_tag}}
+                <select id="id_yea_nay" name="yea_nay" class="form-control">
+                    <option value="a"{% if form.yea_nay.value == 'a' %} selected{% endif %}>Accept</option>
+                    <option value="r"{% if form.yea_nay.value == 'a' %} selected{% endif %}>Reject</option>
+                </select>
+                <p class="help-block">Vote whether to accept or reject this submission</p>
+            </div>
+            <div class="form-group">
+                {{ form.comments_raw.label_tag }}
+                <textarea id="id_comments_raw" name="comments_raw" class="form-control">{% if form.comments_raw.value %}{{ form.comments_raw.value }}{% endif %}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit review</button>
+        </form>
+    </div>
+</div>
+{% if call.owner == user %}
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <h2>Reviews</h2>
+            <p>
+                {{ submission.review_set.count }}/{{ call.reviews_per_submission }} needed reviews &bullet;
+                {% with stats=submission.get_review_stats %}
+                    <strong class="text-success">{{ stats.accept }}</strong>/<strong class="text-danger">{{ stats.reject }}</strong> &bullet;
+                    Average rating: {{ stats.average_rating }}
+                {% endwith %}
+            </p>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Review</th>
+                        <th>Rating</th>
+                        <th>Yea/Nay</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in submission.review_set.all %}
+                        <tr>
+                            <td><a href="{{ review.get_absolute_url }}">Review by {{ review.owner.username }}</a></td>
+                            <td>{{ review.rating }}/5</td>
+                            <td class="{% if review.yea_nay == 'a' %}success{% else %}danger{% endif %}">{{ review.get_yea_nay_display }}</td>
+                            <td>
+                                <abbr data-toggle="tooltip" data-placement="bottom" title="{{ rating.ctime|date:'r' }}">
+                                    {{ rating.ctime|naturaltime }}
+                                </abbr>
+                            </td>
+                            <td>
+                                <abbr data-toggle="tooltip" data-placement="bottom" title="{{ rating.mtime|date:'r' }}">
+                                    {{ rating.mtime|naturaltime }}
+                                </abbr>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

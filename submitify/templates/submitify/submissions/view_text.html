@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <style>
+        body {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        body div {
+            font-family: monospace;
+            line-height: 2.4;
+            max-width: 50em;
+            margin: auto;
+        }
+        body div p {
+            margin: 0;
+        }
+        body div p::before {
+            content: '    ';
+            padding-left: 4em;
+        }
+        </style>
+    </head>
+    <body>
+        <div>
+            <p>Submission: {{ submission.title }}</p>
+            {% if not submission.call.anonymous_submissions %}
+                <p>Author: {{ submission.owner.username }}</p>
+            {% endif %}
+            <p>Words: {{ submission.wordcount }}</p>
+            <p>Status: {{ submission.get_status_display }}</p>
+
+            {{ submission.submission_text|safe }}
+        </div>
+    </body>
+</html>
