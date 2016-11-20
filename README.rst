@@ -103,9 +103,17 @@ a Django app, but the pluggable application has a few more things to note.
 
   See the standalone application for more information.
 
-.. |Build Status| image:: https://travis-ci.org/makyo/submitify.svg?branch=master
-   :target: https://travis-ci.org/makyo/submitify
-.. |Coverage Status| image:: https://coveralls.io/repos/github/makyo/submitify/badge.svg?branch=master
-   :target: https://coveralls.io/github/makyo/submitify?branch=master
-.. |PyPI| image:: https://img.shields.io/pypi/v/submitify.svg
-   :target: https://pypi.python.org/pypi/submitify/
+Further information
+-------------------
+
+Source, issues, and further information:
+  `GitHub <https://github.com/OpenFurry/submitify>`__
+Author
+  `The OpenFurry Contributors <http://openfurry.org>`__
+
+.. |Build Status| image:: https://travis-ci.org/openfurry/submitify.svg?branch=master
+   :target: https://travis-ci.org/openfurry/submitify
+.. |Coverage Status| image:: https://coveralls.io/repos/github/openfurry/submitify/badge.svg?branch=master
+   :target: https://coveralls.io/github/openfurry/submitify?branch=master
+.. |PyPI| image:: https://img.shields.io/pypi/v/django-submitify.svg
+   :target: https://pypi.python.org/pypi/django-submitify/
