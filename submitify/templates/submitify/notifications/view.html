@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <dl class="dl-horizontal">
+            <dt>Subject</dt>
+            <dd>{{ notification.subject }}</dd>
+            <dt>Sent</dt>
+            <dd>
+                <abbr data-toggle="tooltip" data-placement="bottom" title="{{ notification.ctime|date:'r' }}">
+                    {{ notification.ctime|naturalday }}
+                </abbr>
+            </dd>
+            <dt>From</dt>
+            <dd>{{ call.owner }}</dd>
+            <dt>Body</dt>
+            <dd>{{ notification.body_rendered|safe }}</dd>
+        </dl>
+    </div>
+</div>
+{% endblock %}

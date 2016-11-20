@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.title.label_tag }}
+                {{ form.title.errors }}
+                <input type="text" id="id_title" class="form-control" maxlength="200" name="title"{% if form.title.value %} value="{{ form.title.value }}"{% endif %} />
+            </div>
+            <div class="form-group">
+                {{ form.genre.label_tag }}
+                {{ form.genre.errors }}
+                <input type="text" id="id_genre" class="form-control" maxlength="200" name="genre"{% if form.genre.value %} value="{{ form.genre.value }}"{% endif %} />
+            </div>
+            <div class="form-group">
+                {{ form.length.label_tag }}
+                {{ form.length.errors }}
+                <input type="text" id="id_length" class="form-control" maxlength="200" name="length"{% if form.length.value %} value="{{ form.length.value }}"{% endif %} />
+            </div>
+            <div class="form-group">
+                {{ form.end_date.label_tag }}
+                {{ form.end_date.errors }}
+                <input type="date" id="id_end_date" class="form-control" maxlength="10" name="end_date"{% if form.end_date.value %} value="{{ form.end_date.value }}"{% endif %} />
+                <p class="help-block">Enter dates in the format MM/DD/YYYY</p>
+            </div>
+            <div class="form-group">
+                {{ form.about_raw.label_tag }}
+                {{ form.about_raw.errors }}
+                <textarea id="id_about_raw" class="form-control" name="about_raw" rows="10" />{% if form.about_raw.value %}{{ form.about_raw.value }}{% endif %}</textarea>
+                <p class="help-block">Markdown allowed</p>
+            </div>
+            <div class="form-group">
+                {{ form.reviews_per_submission.label_tag }}
+                {{ form.reviews_per_submission.errors }}
+                <input type="number" id="id_reviews_per_submission" class="form-control" maxlength="10" name="reviews_per_submission"{% if form.reviews_per_submission.value %} value="{{ form.reviews_per_submission.value }}"{% endif %} />
+            </div>
+            <div class="checkbox">
+                <label>
+                    {{ form.anonymous_submissions }} Submissions are anonymous
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    {{ form.readers_can_submit }} Slush-pile readers can submit
+                </label>
+            </div>
+            <div class="checkbox">
+                <label>
+                    {{ form.paid }} Is paid
+                </label>
+            </div>
+            <p>
+                <button class="btn btn-success add-guideline-button">Add submission guideline</button>
+            </p>
+            <div class="submission-guidelines">
+                {% for guideline in guideline_set %}
+                    <div class="submission-guideline panel panel-default">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="id_form-{{ forloop.counter0 }}-key">Guideline name</label>
+                                <select class="form-control" name="form-{{ forloop.counter0 }}-key">
+                                {% for default in guideline_defaults %}
+                                    <option{% if guideline.key.value == default %} selected{% endif %}>{{default}}</option>
+                                {% endfor %}
+                                </select>
+                                <em>or</em><br />
+                                <input type="text" id="id_form-{{ forloop.counter0 }}-key" name="form-{{ forloop.counter0 }}-key"{% if guideline.key.value and guideline.key.value not in guideline_defaults %} value="{{ guideline.key.value }}"{% endif %} />
+                                <p class="help-block">Use the dropdown whenever possible</p>
+                            </div>
+                            <div class="form-group">
+                                <label for="id_form-{{ forloop.counter0 }}-value">Guideline text</label>
+                                <textarea id="id_form-{{ forloop.counter0 }}-value" name="form-{{ forloop.counter0 }}-value" class="form-control">{% if guideline.value.value %}{{ guideline.value.value }}{% endif %}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    window.guidelines_added = $('.submission-guideline').length;
+    window.guideline_template = '<div class="submission-guideline panel panel-default">'
+        + '<div class="panel-body">'
+        + '<div class="form-group">'
+        + '<label for="id_form-{id}-key">Guideline name</label>'
+        + '<select class="form-control" name="form-{id}-key">'
+        {% for default in guideline_defaults %}
+            + '<option>{{default}}</option>'
+        {% endfor %}
+        + '</select>'
+        + '<em>or</em><br />'
+        + '<input type="text" id="id_form-{id}-key" name="form-{id}-key" />'
+        + '<p class="help-block">Use the dropdown whenever possible</p>'
+        + '</div>'
+        + '<div class="form-group">'
+        + '<label for="id_form-{id}-value">Guideline text</label>'
+        + '<textarea id="id_form-{id}-value" name="form-{id}-value" class="form-control"></textarea>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
+    $('.add-guideline-button').click(function(e) {
+        e.preventDefault();
+        $('.submission-guidelines').append(window.guideline_template.replace(/\{id\}/g, window.guidelines_added));
+        window.guidelines_added++;
+    });
+</script>
+{% endblock %}

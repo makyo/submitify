@@ -1,0 +1,20 @@
+<html>
+    <head>
+        <style>
+        body {
+            font-family: monospace;
+            line-height: 2.4;
+        }
+        </style>
+    </head>
+    <body>
+        Submission: {{ submission.title }}<br />
+        {% if not submission.call.anonymous_submissions %}
+        Author: {{ submission.owner.username }}<br />
+        {% endif %}
+        Words: {{ submission.wordcount }}<br />
+        Status: {{ submission.get_status_display }}<br />
+
+        {{ submission.submission_text|safe }}
+    </body>
+</html>
