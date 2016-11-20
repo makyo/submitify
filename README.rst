@@ -2,6 +2,8 @@
 Submitify
 =========
 
+|Build Status| |Coverage Status| |PyPI|
+
 Multi-format submission accepting platform.
 
 Quick start
@@ -100,3 +102,10 @@ a Django app, but the pluggable application has a few more things to note.
     {% endif %}
 
   See the standalone application for more information.
+
+.. |Build Status| image:: https://travis-ci.org/makyo/submitify.svg?branch=master
+   :target: https://travis-ci.org/makyo/submitify
+.. |Coverage Status| image:: https://coveralls.io/repos/github/makyo/submitify/badge.svg?branch=master
+   :target: https://coveralls.io/github/makyo/submitify?branch=master
+.. |PyPI| image:: https://img.shields.io/pypi/v/submitify.svg
+   :target: https://pypi.python.org/pypi/submitify/
