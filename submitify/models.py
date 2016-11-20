@@ -1,16 +1,13 @@
-from django.contrib import messages
+import markdown
+import os
+from prose_wc import wc
+import pypandoc
+
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils import timezone
-
-import markdown
-import os
-from prose_wc import wc
-import pypandoc
-import subprocess
-import tempfile
 
 
 def original_file_path(instance, filename):
@@ -47,6 +44,7 @@ class Call(models.Model):
     genre = models.CharField(max_length=50)
     length = models.CharField(max_length=50)
     reviews_per_submission = models.PositiveIntegerField(default=1)
+    invite_only = models.BooleanField(default=False)
     readers = models.ManyToManyField(User,
                                      related_name='submitify_calls_reading')
     restricted_to = models.ManyToManyField(User, related_name='invitations')
@@ -64,6 +62,18 @@ class Call(models.Model):
             'call_slug': slugify(self.title),
         })
 
+    def get_next_status(self):
+        try:
+            return self.STATUS_CHOICES[self.status]
+        except:
+            return None
+
+    def __str__(self):
+        return self.title
+
+    def __unicode__(self):
+        return self.title
+
 
 class Guideline(models.Model):
     DEFAULT_KEYS = (
@@ -79,6 +89,7 @@ class Guideline(models.Model):
     call = models.ForeignKey(Call)
     key = models.CharField(max_length=100)
     value = models.TextField()
+
 
 class Submission(models.Model):
     SUBMITTED = 's'
@@ -121,12 +132,13 @@ class Submission(models.Model):
         self.cover = markdown.markdown(
             self.cover, extensions=['markdown.extensions.extra'])
         process_file = (kwargs.pop('process_file')
-            if 'process_file' in kwargs else False)
+                        if 'process_file' in kwargs else False)
         if process_file:
             self.submission_text = markdown.markdown(
                 pypandoc.convert_file(self.original_file.name, 'md'))
-            self.wordcount = wc.wc(None, pypandoc.convert(
-                self.submission_text, 'plain', 'html'))['counts']['words']
+            self.wordcount = wc.wc(
+                None, pypandoc.convert(
+                    self.submission_text, 'plain', 'html'))['counts']['words']
         super(Submission, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -188,7 +200,7 @@ class Review(models.Model):
         super(Review, self).save()
 
     def get_absolute_url(self):
-        return reverse('submissions.view_review', kwargs={
+        return reverse('submitify:view_review', kwargs={
             'call_id': self.submission.call.id,
             'call_slug': slugify(self.submission.call.title),
             'submission_id': self.submission.id,

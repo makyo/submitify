@@ -1,6 +1,5 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.mail import send_mail
 from django.shortcuts import (
     get_object_or_404,
     redirect,
@@ -24,7 +23,8 @@ def view_notification(request, call_id=None, call_slug=None,
     if request.user != call.owner or request.user not in notification.target:
         messages.error(request, 'Only the call owner or notified individuals '
                        'may view this notification')
-        return render(request, 'submitify/permission_denied.html', {}, status=403)
+        return render(request, 'submitify/permission_denied.html', {},
+                      status=403)
     return render(request, 'submitify/notifications/view.html', {
         'title': 'Author notification',
         'subtitle': notification.get_notification_type_display(),
@@ -39,7 +39,8 @@ def send_notification(request, call_id=None, call_slug=None,
     call = get_object_or_404(Call, pk=call_id)
     if request.user != call.owner:
         messages.error(request, 'Only the call owner may send notifications')
-        return render(request, 'submitify/permission_denied.html', {}, status=403)
+        return render(request, 'submitify/permission_denied.html', {},
+                      status=403)
     if (call.status < Call.CLOSED_COMPLETED and
             notification_type in ['accept', 'reject']):
         messages.error(request, 'You may not notify users of acceptance or '

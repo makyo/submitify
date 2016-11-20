@@ -1,0 +1,10 @@
+include LICENSE
+include README.rst
+
+# Include all of submitify
+recursive-include submitify/templates *
+recursive-include submitify/views *
+
+# Don't include any of the standalone stuff
+prune submitify_standalone
+prune usermgmt_standalone

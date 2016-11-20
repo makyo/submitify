@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 
 from .models import (
     Call,
@@ -27,12 +28,21 @@ class CallForm(forms.ModelForm):
 
 class GuidelineForm(forms.ModelForm):
     DEFAULT_KEYS = Guideline.DEFAULT_KEYS
+
     class Meta:
         model = Guideline
         fields = ['key', 'value']
 
 
 GuidelineFormset = forms.formset_factory(GuidelineForm)
+
+
+class InviteForm(forms.Form):
+    user = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        widget=forms.HiddenInput())
+    calls = forms.ModelChoiceField(
+        queryset=Call.objects.all())
 
 
 class NotificationForm(forms.ModelForm):

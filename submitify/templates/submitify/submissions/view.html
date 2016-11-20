@@ -2,17 +2,27 @@
 {% load humanize %}
 
 {% block content %}
+<style>
+.submission-text {
+    font-family: monospace;
+    line-height: 2.4;
+    max-height: 50ex;
+    overflow: scroll;
+}
+.submission-text p {
+    margin: 0;
+}
+.submission-text p::before {
+    content: '    ';
+    padding-left: 4em;
+}
+</style>
 <div class="row">
     <div class="col-md-8 col-md-offset-2">
-        {{ submission.cover|safe }}
-        <p class="text-muted">
-            Created <abbr data-toggle="tooltip" data-placement="bottom" title="{{ submission.ctime|date:'r' }}">
-                {{ submission.ctime|naturalday }}
-            </abbr> &bullet;
-            {{ submission.wordcount }} words &bullet;
-            {{ submission.get_status_display }}
+        <p>
+            <a href="{{ call.get_absolute_url }}" role="button" class="btn btn-default">&larr; Back to {{ call.title }}</a>
         </p>
-        {% if call.owner == user %}
+        {% if call.owner == user and call.status > 3 and submission.status not in 'ar'|make_list %}
             <h2>Submission actions</h2>
             <p>These are immediate and irreversable.  Choose wisely!</p>
             <p>
@@ -26,6 +36,19 @@
                 </a>
             </p>
         {% endif %}
+        <h2>Submission information</h2>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {{ submission.cover|safe }}
+                <p class="text-muted">
+                    Created <abbr data-toggle="tooltip" data-placement="bottom" title="{{ submission.ctime|date:'r' }}">
+                        {{ submission.ctime|naturalday }}
+                    </abbr> &bullet;
+                    {{ submission.wordcount }} words &bullet;
+                    {{ submission.get_status_display }}
+                </p>
+            </div>
+        </div>
     </div>
 </div>
 <div class="row">
@@ -33,9 +56,15 @@
         <h2>Submission text</h2>
         <p class="small">
             <a href="{% url 'submitify:view_submission_text' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}" target="_blank">View in own window</a> &bullet;
-            <a href="#" class="type-switch file">Switch to file</a>
+            <a href="{% url 'submitify:view_submission_file' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}">View as PDF</a>
         </p>
-        <iframe class="submission-view" src="{% url 'submitify:view_submission_text' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}"></iframe>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="submission-text">
+                    {{ submission.submission_text|safe }}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <div class="row">
@@ -44,26 +73,19 @@
         <form method="post" action="{% if review.id %}{% url 'submitify:edit_review' call_id=call.id call_slug=call.title|slugify submission_id=submission.id review_id=review.id %}{% else %}{% url 'submitify:create_review' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}{% endif %}">
             {% csrf_token %}
             <div class="radio">
+                <strong>Rating</strong><br />
                 <label>
                     <input type="radio" name="rating" value="1"{% if form.rating.value == 1 %} checked{% endif %}> 1
                 </label>
-            </div>
-            <div class="radio">
                 <label>
                     <input type="radio" name="rating" value="2"{% if form.rating.value == 2 %} checked{% endif %}> 2
                 </label>
-            </div>
-            <div class="radio">
                 <label>
                     <input type="radio" name="rating" value="3"{% if form.rating.value == 3 %} checked{% endif %}> 3
                 </label>
-            </div>
-            <div class="radio">
                 <label>
                     <input type="radio" name="rating" value="4"{% if form.rating.value == 4 %} checked{% endif %}> 4
                 </label>
-            </div>
-            <div class="radio">
                 <label>
                     <input type="radio" name="rating" value="5"{% if form.rating.value == 5 %} checked{% endif %}> 5
                 </label>
@@ -78,7 +100,7 @@
             </div>
             <div class="form-group">
                 {{ form.comments_raw.label_tag }}
-                <textarea id="id_comments_raw" name="comments_raw" class="form-control">{{ form.comments_raw.value }}</textarea>
+                <textarea id="id_comments_raw" name="comments_raw" class="form-control">{% if form.comments_raw.value %}{{ form.comments_raw.value }}{% endif %}</textarea>
             </div>
             <button type="submit" class="btn btn-primary">Submit review</button>
         </form>
@@ -91,7 +113,7 @@
             <p>
                 {{ submission.review_set.count }}/{{ call.reviews_per_submission }} needed reviews &bullet;
                 {% with stats=submission.get_review_stats %}
-                    <strong class="text-success">{{ stats.accept }}</strong>/<strong class="text-danger">{{ ratio.reject }}</strong> &bullet;
+                    <strong class="text-success">{{ stats.accept }}</strong>/<strong class="text-danger">{{ stats.reject }}</strong> &bullet;
                     Average rating: {{ stats.average_rating }}
                 {% endwith %}
             </p>
@@ -128,20 +150,4 @@
         </div>
     </div>
 {% endif %}
-<script type="text/javascript">
-    $('.type-switch').on('click', function() {
-        console.log(this);
-        if ($(this).hasClass('file')) {
-            $('.submission-view').attr('src', '{% url 'submitify:view_submission_file' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}');
-            $(this).removeClass('file');
-            $(this).addClass('text');
-            $(this).text('Switch to text');
-        } else {
-            $('.submission-view').attr('src', '{% url 'submitify:view_submission_text' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}');
-            $(this).removeClass('text');
-            $(this).addClass('file');
-            $(this).text('Switch to file');
-        }
-    });
-</script>
 {% endblock %}

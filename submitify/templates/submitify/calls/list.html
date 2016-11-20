@@ -26,7 +26,7 @@
                         </td>
                         <td>{{ call.get_status_display }}</td>
                         <td>
-                            <abbr data-toggle="tooltip" data-placement="bottom" title="{{ call.end_date|date:'r' }}">
+                            <abbr data-toggle="tooltip" data-placement="bottom" title="{{ call.end_date|date:'D, j M' }}">
                                 {{ call.end_date|naturalday }}
                             </abbr>
                         </td>

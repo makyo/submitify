@@ -1,6 +1,5 @@
 import os
 import pypandoc
-import re
 import shutil
 import subprocess
 import tempfile
@@ -52,6 +51,7 @@ def manuscriptify(instance):
                 save=False)
     shutil.rmtree(tempdir, True)
 
+
 @login_required
 def create_submission(request, call_id=None, call_slug=None):
     call = get_object_or_404(Call, pk=call_id)
@@ -95,7 +95,8 @@ def view_submission(request, call_id=None, call_slug=None,
     if not (request.user in call.readers.all() or request.user == call.owner):
         messages.error(request, "Only users listed as that call's readers "
                        "may view submissions for that call.")
-        return render(request, 'submitify/permission_denied.html', {}, status=403)
+        return render(request, 'submitify/permission_denied.html', {},
+                      status=403)
     try:
         review = Review.objects.get(submission=submission, owner=request.user)
     except Review.DoesNotExist:
@@ -111,7 +112,9 @@ def view_submission(request, call_id=None, call_slug=None,
             form.save_m2m()
             return redirect(submission.get_absolute_url())
     return render(request, 'submitify/submissions/view.html', {
-        'title': submission.title,
+        'title': 'Submission <em>{}</em>'.format(submission.title),
+        'subtitle': '{} for <em>{}</em>'.format(
+            submission.get_status_display(), call.title),
         'call': call,
         'form': form,
         'review': review,
@@ -127,7 +130,8 @@ def view_submission_text(request, call_id=None, call_slug=None,
     if not (request.user in call.readers.all() or request.user == call.owner):
         messages.error(request, "Only users listed as that call's readers "
                        "may view submissions for that call.")
-        return render(request, 'submitify/permission_denied.html', {}, status=403)
+        return render(request, 'submitify/permission_denied.html', {},
+                      status=403)
     return render(request, 'submitify/submissions/view_text.html', {
         'submission': submission,
     })
@@ -142,33 +146,35 @@ def view_submission_file(request, call_id=None, call_slug=None,
         messages.error(request, "Only users listed as that call's readers "
                        "may view submissions for that call.")
         return render(request, 'permission_denied.html', {}, status=403)
-    import pdb; pdb.set_trace()
-    with open(submission.submission_file, 'rb') as f:
-        contents = f.read()
+    contents = submission.submission_file.read()
     return HttpResponse(contents, content_type='application/pdf')
 
 
 @login_required
 def accept_submission(request, call_id=None, call_slug=None,
                       submission_id=None):
-     call = get_object_or_404(Call, pk=call_id)
-     if call.status != Call.CLOSED_REVIEWING:
-         messages.error(request, 'You may only accept submissions when '
-                        'reviewing is completed')
-         return render(request, 'submitify/permission_denied.html', {}, status=403)
-     submission = get_object_or_404(Submission, pk=submission_id, call=call)
-     submission.status = Submission.ACCEPTED
-     return redirect(submission.get_absolute_url())
+    call = get_object_or_404(Call, pk=call_id)
+    if call.status < Call.CLOSED_REVIEWING:
+        messages.error(request, 'You may only accept submissions when '
+                       'reviewing is completed')
+        return render(request, 'submitify/permission_denied.html', {},
+                      status=403)
+    submission = get_object_or_404(Submission, pk=submission_id, call=call)
+    submission.status = Submission.ACCEPTED
+    submission.save()
+    return redirect(submission.get_absolute_url())
 
 
 @login_required
 def reject_submission(request, call_id=None, call_slug=None,
                       submission_id=None):
-     call = get_object_or_404(Call, pk=call_id)
-     if call.status != Call.CLOSED_REVIEWING:
-         messages.error(request, 'You may only accept submissions when '
-                        'reviewing is completed')
-         return render(request, 'submitify/permission_denied.html', {}, status=403)
-     submission = get_object_or_404(Submission, pk=submission_id, call=call)
-     submission.status = Submission.ACCEPTED
-     return redirect(submission.get_absolute_url())
+    call = get_object_or_404(Call, pk=call_id)
+    if call.status < Call.CLOSED_REVIEWING:
+        messages.error(request, 'You may only accept submissions when '
+                       'reviewing is completed')
+        return render(request, 'submitify/permission_denied.html', {},
+                      status=403)
+    submission = get_object_or_404(Submission, pk=submission_id, call=call)
+    submission.status = Submission.REJECTED
+    submission.save()
+    return redirect(submission.get_absolute_url())

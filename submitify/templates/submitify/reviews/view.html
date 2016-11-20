@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4 col-md-offset-2">
+        <h2>Review details</h2>
+        <dl>
+            <dt>Reviewer</dt>
+            <dd>{{ review.owner.username }}</dd>
+            <dt>Created</dt>
+            <dd>
+                <abbr data-toggle="tooltip" data-placement="bottom" title="{{ review.ctime|date:'r' }}">
+                    {{ review.ctime|naturalday }}
+                </abbr>
+            </dd>
+            <dt>Modified</dt>
+            <dd>
+                <abbr data-toggle="tooltip" data-placement="bottom" title="{{ review.mtime|date:'r' }}">
+                    {{ review.mtime|naturalday }}
+                </abbr>
+            </dd>
+            <dt>Accept or reject</dt>
+            <dd><strong class="text-{% if review.yea_nay == 'a' %}success{% else %}danger{% endif %}">{{ review.get_yea_nay_display }}</strong></dd>
+            <dt>Rating</dt>
+            <dd>{{ review.rating }}/5</dd>
+        </dl>
+    </div>
+    <div class="col-md-4">
+        <h2>Submission details</h2>
+        <dl>
+            <dt>Title</dt>
+            <dd>{{ submission.title }}</dd>
+            {% if not call.anonymous_submissions %}
+                <dt>Author</dt>
+                <dd>{{ submission.owner.username }}</dd>
+            {% endif %}
+            <dt>Created</dt>
+            <dd>
+                <abbr data-toggle="tooltip" data-placement="bottom" title="{{ submission.ctime|date:'r' }}">
+                    {{ submission.ctime|naturalday }}
+                </abbr>
+            </dd>
+            <dt>Wordcount</dt>
+            <dd>{{ submission.wordcount }}</dd>
+            <dt>Submission</dt>
+            <dd>
+                <a href="{{ submission.get_absolute_url }}">View</a> &bullet;
+                <a href="{% url 'submitify:view_submission_file' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}">Download</a>
+            </dd>
+        </dl>
+        <h2>Call details</h2>
+        <dl>
+            <dt>Title</dt>
+            <dd><a href="{{ call.get_absolute_url }}">{{ call.title }}</a></dd>
+            <dt>Submission length</dt>
+            <dd>{{ call.length }}</dd>
+            <dt>Status</dt>
+            <dd>{{ call.get_status_display }}</dd>
+        </dl>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <h2>Review comments</h2>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {{ review.comments_rendered|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

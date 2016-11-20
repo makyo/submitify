@@ -8,6 +8,28 @@
             <p class="pull-right">
                 <a href="{% url 'submitify:create_call' %}">Create a new call for submissions</a>
             </p>
+            {% if invite_reader_form %}
+                <form method="post" action="{% url 'submitify:invite_reader' %}">
+                    {% csrf_token %}
+                    {{ invite_reader_form.user }}
+                    <div class="form-group">
+                        <label for="id_calls">Invite user as a reader to...</label>
+                        {{ invite_reader_form.calls }}
+                        <button type="submit" class="btn btn-default btn-xs">Invite</button>
+                    </div>
+                </form>
+            {% endif %}
+            {% if invite_writer_form %}
+                <form method="post" action="{% url 'submitify:invite_writer' %}">
+                    {% csrf_token %}
+                    {{ invite_writer_form.user }}
+                    <div class="form-group">
+                        <label for="id_calls">Invite user as a writer to...</label>
+                        {{ invite_writer_form.calls }}
+                        <button type="submit" class="btn btn-default btn-xs">Invite</button>
+                    </div>
+                </form>
+            {% endif %}
         {% endif %}
         <h2>Calls for submissions - running</h2>
         <table class="table table-striped table-hover">
@@ -32,7 +54,7 @@
                         </td>
                         <td>{{ call.get_status_display }}</td>
                         <td>
-                            <abbr data-toggle="tooltip" data-placement="bottom" title="{{ call.end_date|date:'r' }}">
+                            <abbr data-toggle="tooltip" data-placement="bottom" title="{{ call.end_date|date:'D, j M' }}">
                                 {{ call.end_date|naturalday }}
                             </abbr>
                         </td>
@@ -67,7 +89,7 @@
                         </td>
                         <td>{{ call.get_status_display }}</td>
                         <td>
-                            <abbr data-toggle="tooltip" data-placement="bottom" title="{{ call.end_date|date:'r' }}">
+                            <abbr data-toggle="tooltip" data-placement="bottom" title="{{ call.end_date|date:'D, j M' }}">
                                 {{ call.end_date|naturalday }}
                             </abbr>
                         </td>
@@ -102,7 +124,7 @@
                         </td>
                         <td>{{ call.get_status_display }}</td>
                         <td>
-                            <abbr data-toggle="tooltip" data-placement="bottom" title="{{ call.end_date|date:'r' }}">
+                            <abbr data-toggle="tooltip" data-placement="bottom" title="{{ call.end_date|date:'D, j M' }}">
                                 {{ call.end_date|naturalday }}
                             </abbr>
                         </td>

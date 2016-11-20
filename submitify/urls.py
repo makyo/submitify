@@ -52,10 +52,6 @@ call_urls = [
         name='edit_call'),
     url(r'^next/$', calls.next_step,
         name='next_step'),
-    url(r'^invite/reader/$', calls.invite_reader,
-        name='invite_reader'),
-    url(r'^invite/writer/$', calls.invite_writer,
-        name='invite_writer'),
     url(r'^notifications/', include(notification_urls)),
     url(r'^(?P<submission_id>\d+)/', include(submission_urls))
 ]
@@ -65,6 +61,10 @@ urlpatterns = [
         name='list_calls'),
     url(r'^create/$', calls.create_call,
         name='create_call'),
+    url(r'^invite/reader/$', calls.invite_reader,
+        name='invite_reader'),
+    url(r'^invite/writer/$', calls.invite_writer,
+        name='invite_writer'),
     url(r'^(?P<call_id>\d+)/', include(call_urls)),
     url(r'^(?P<call_id>\d+)-(?P<call_slug>[-\w]+)/', include(call_urls)),
 ]
