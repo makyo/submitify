@@ -12,7 +12,6 @@ setup(
     version='0.0.1',
     packages=find_packages(),
     include_package_data=True,
-    tests_require=['coverage'],
     license='MIT License',
     description='A Django app to accept literary submissions.',
     long_description=README,
