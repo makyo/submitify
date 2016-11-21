@@ -168,7 +168,7 @@ def view_submission_file(request, call_id=None, call_slug=None,
 
 @login_required
 def view_original_file(request, call_id=None, call_slug=None,
-                         submission_id=None):
+                       submission_id=None):
     call = get_object_or_404(Call, pk=call_id)
     submission = get_object_or_404(Submission, pk=submission_id, call=call)
     if not (request.user in call.readers.all() or request.user == call.owner):
