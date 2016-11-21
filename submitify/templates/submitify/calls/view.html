@@ -25,9 +25,9 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-3 col-md-offset-2">
+    <div class="col-md-8 col-md-offset-2">
         <h2>Details</h2>
-        <dl>
+        <dl class="dl-horizontal">
             <dt>Genre</dt>
             <dd>{{ call.genre }}</dd>
             <dt>Submission length</dt>
@@ -57,17 +57,19 @@
             </dd>
             <dt>Slush-pile readers can submit</dt>
             <dd>{{ call.readers_can_submit|yesno }}</dd>
-            {% for guidelines in call.guideline_set.all %}
+            {% for guideline in call.guideline_set.all %}
                 <dt>{{ guideline.key }}</dt>
                 <dd>{{ guideline.value }}</dd>
             {% endfor %}
         </dl>
     </div>
-    <div class="col-md-5">
+</div>
+<div class="row">
+    <div class="col-md-4 col-md-offset-2">
         {% if user.is_authenticated %}
             <h2>Submit</h2>
             {% if can_submit %}
-                <p>Want to submit to {{ call.title }}?  Great!  Here's what you need to know</p>
+                <p>Want to submit to <em>{{ call.title }}</em>?  Great!  Here's what you need to know</p>
                 <p>Submissions require your work to be in a file supported by Submitify.  This means that you may submit your work in the following formats: Microsoft docx, epub, html, LaTeX, markdown, LibreOffice odt, Emacs org-mode, reStructured Text, textile, or twiki.</p>
                 <p>All images and non-essential formatting will be stripped from your submission.</p>
                 {% if call.anonymous_submissions %}
@@ -92,20 +94,38 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
-            {% elif call.owner == user %}
-                <h2>Send a notification</h2>
-                <a href="{% url 'submitify:send_notification' call_id=call.id call_slug=call.title|slugify notification_type='basic' %}" class="btn btn-primary" role="button">To all authors</a>
-                {% if call.status >= 4 %}
-                    <a href="{% url 'submitify:send_notification' call_id=call.id call_slug=call.title|slugify notification_type='accept' %}" class="btn btn-primary" role="button">To accepted authors</a>
-                    <a href="{% url 'submitify:send_notification' call_id=call.id call_slug=call.title|slugify notification_type='reject' %}" class="btn btn-primary" role="button">To rejected authors</a>
-                {% endif %}
             {% else %}
-                <p>You are not able to submit to this call</p>
+                <p>You are not able to submit to this call.  This is usually for one of three reasons:</p>
+                <ul>
+                    <li>The call is not open for submissions right now.</li>
+                    <li>The call is invite-only and only open to restricted users.</li>
+                    <li>The call does not permit slush-pile readers to submit, and you are listed as one.</li>
+                </ul>
+            {% endif %}
+            {% if call.owner == user %}
+                <h2>Send a notification</h2>
+                <a href="{% url 'submitify:send_notification' call_id=call.id call_slug=call.title|slugify notification_type='basic' %}" class="btn btn-default" role="button">To all authors</a>
+                {% if call.status >= 4 %}
+                    <a href="{% url 'submitify:send_notification' call_id=call.id call_slug=call.title|slugify notification_type='accept' %}" class="btn btn-default" role="button">To accepted authors</a>
+                    <a href="{% url 'submitify:send_notification' call_id=call.id call_slug=call.title|slugify notification_type='reject' %}" class="btn btn-default" role="button">To rejected authors</a>
+                {% endif %}
             {% endif %}
         {% else %}
             <p>Please <a href="{% url 'login' %}">log in</a> to submit</p>
         {% endif %}
     </div>
+    {% if with_submissions %}
+        <div class="col-md-4">
+            <h2>Readers</h2>
+            <ul class="list-unstyled striped-list">
+                {% for reader in call.readers.all %}
+                    <li>{{ reader.username }}</li>
+                {% empty %}
+                    <li><em>No slush-pile readers</em></li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
 </div>
 {% if user.is_authenticated and call.notification_set.count > 0 %}
     <div class="row">
@@ -132,17 +152,7 @@
 {% endif %}
 {% if with_submissions %}
     <div class="row">
-        <div class="col-md-3 col-md-offset-2">
-            <h2>Readers</h2>
-            <ul class="list-unstyled striped-list">
-                {% for reader in call.readers.all %}
-                    <li>{{ reader.username }}</li>
-                {% empty %}
-                    <li><em>No slush-pile readers</em></li>
-                {% endfor %}
-            </ul>
-        </div>
-        <div class="col-md-5">
+        <div class="col-md-8 col-md-offset-2">
             <h2>Submissions</h2>
             <table class="table table-striped table-hover">
                 <thead>

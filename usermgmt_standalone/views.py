@@ -43,20 +43,21 @@ class Register(FormView):
 
 def view_user(request, username=None):
     user = get_object_or_404(User, username=username)
-    calls_running = user.submitify_calls_editing.filter(status__in=[
+    acceptable_statuses = [
         Call.NOT_OPEN_YET,
         Call.OPEN,
-    ])
-    calls_reading = Call.objects.filter(readers__in=[user], status__in=[
-        Call.NOT_OPEN_YET,
-        Call.OPEN,
-    ])
+    ]
+    if 'closed-reviewing' in request.GET:
+        acceptable_statuses.append(Call.CLOSED_REVIEWING)
+    if 'closed-completed' in request.GET:
+        acceptable_statuses.append(Call.CLOSED_COMPLETED)
+    calls_running = user.submitify_calls_editing.filter(
+        status__in=acceptable_statuses)
+    calls_reading = Call.objects.filter(readers__in=[user],
+                                        status__in=acceptable_statuses)
     calls_submitting = Call.objects.filter(
         id__in=[s.call.id for s in user.submitify_submissions.all()],
-        status__in=[
-            Call.NOT_OPEN_YET,
-            Call.OPEN,
-        ])
+        status__in=acceptable_statuses)
     invite_calls_reading = []
     invite_calls_writing = []
     if request.user.is_authenticated and request.user != user:

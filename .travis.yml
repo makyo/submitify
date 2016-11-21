@@ -8,6 +8,7 @@ addons:
     packages:
       - pandoc
       - texlive-base
+      - libmagic-dev
 install: "pip install -r requirements.txt"
 script:
   - "make test"

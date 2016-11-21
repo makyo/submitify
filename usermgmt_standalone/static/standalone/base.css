@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css?family=EB+Garamond|Cabin');
+
+body {
+    font-family: "Cabin",sans-serif;
+    /* background: url('lightpaperfibers.png'); */
+}
+
+.main {
+    position: relative;
+    margin-bottom: -100px;
+    padding-bottom: 2em;
+}
+
+.content {
+    margin: 0 auto;
+    padding: 0 5%;
+}
+
+textarea {
+    font-family: monospace;
+}
+
+footer {
+    border-top: 1px dotted #888;
+    height: 100px;
+    width: 100%;
+    position: absolute;
+    bottom: -100px;
+}
+
+footer img {
+    height: 14px;
+    vertical-align: text-top;
+}
+
+@media (max-width: 992px) {
+    footer div {
+        text-align: right;
+    }
+    footer .first-footer {
+        padding-top: 1em !important;
+    }
+    footer .gh-corner svg {
+        z-index: 1000;
+    }
+}

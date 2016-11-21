@@ -56,14 +56,15 @@
                 <button class="btn btn-success add-guideline-button">Add submission guideline</button>
             </p>
             <div class="submission-guidelines">
+                {{ guideline_set.management_form }}
                 {% for guideline in guideline_set %}
                     <div class="submission-guideline panel panel-default">
                         <div class="panel-body">
                             <div class="form-group">
                                 <label for="id_form-{{ forloop.counter0 }}-key">Guideline name</label>
-                                <select class="form-control" name="form-{{ forloop.counter0 }}-key">
+                                <select class="form-control select-update" name="form-{{ forloop.counter0 }}-key" data-update="id_form-{{ forloop.counter0 }}-key">
                                 {% for default in guideline_defaults %}
-                                    <option{% if guideline.key.value == default %} selected{% endif %}>{{default}}</option>
+                                    <option value="{{default}}"{% if guideline.key.value == default %} selected{% endif %}>{{default}}</option>
                                 {% endfor %}
                                 </select>
                                 <em>or</em><br />
@@ -83,14 +84,15 @@
     </div>
 </div>
 <script type="text/javascript">
+$(function() {
     window.guidelines_added = $('.submission-guideline').length;
     window.guideline_template = '<div class="submission-guideline panel panel-default">'
         + '<div class="panel-body">'
         + '<div class="form-group">'
         + '<label for="id_form-{id}-key">Guideline name</label>'
-        + '<select class="form-control" name="form-{id}-key">'
+        + '<select class="form-control select-update" name="form-{id}-key" data-update="id_form-{id}-key">'
         {% for default in guideline_defaults %}
-            + '<option>{{default}}</option>'
+            + '<option value="{{default}}">{{default}}</option>'
         {% endfor %}
         + '</select>'
         + '<em>or</em><br />'
@@ -107,6 +109,11 @@
         e.preventDefault();
         $('.submission-guidelines').append(window.guideline_template.replace(/\{id\}/g, window.guidelines_added));
         window.guidelines_added++;
+        $('#id_form-TOTAL_FORMS').val(window.guidelines_added);
     });
+    $('.select-update').change(function(e) {
+        $('#' + $(this).data('update')).val($(this).val());
+    })
+});
 </script>
 {% endblock %}

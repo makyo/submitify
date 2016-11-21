@@ -4,10 +4,24 @@
 {% block content %}
 <div class="row">
     <div class="col-md-8 col-md-offset-2">
+        <form method="get" class="form-inline">
+            <div class="checkbox-inline">
+                <label>
+                    <input type="checkbox" onchange="this.form.submit()" name="closed-reviewing"{% if 'closed-reviewing' in request.GET %} checked{% endif %} />
+                    Show closed calls in review
+                </label>
+            </div>
+            <div class="checkbox-inline">
+                <label>
+                    <input type="checkbox" onchange="this.form.submit()" name="closed-completed"{% if 'closed-completed' in request.GET %} checked{% endif %} />
+                    Show closed and completed calls
+                </label>
+            </div>
+            <noscript>
+                <button type="submit" class="btn btn-default btn-xs">Update</button>
+            </noscript>
+        </form>
         {% if user.is_authenticated %}
-            <p class="pull-right">
-                <a href="{% url 'submitify:create_call' %}">Create a new call for submissions</a>
-            </p>
             {% if invite_reader_form %}
                 <form method="post" action="{% url 'submitify:invite_reader' %}">
                     {% csrf_token %}
@@ -138,4 +152,5 @@
         </table>
     </div>
 </div>
+
 {% endblock %}
