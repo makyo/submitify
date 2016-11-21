@@ -20,7 +20,7 @@
 <div class="row">
     <div class="col-md-8 col-md-offset-2">
         <p>
-            <a href="{{ call.get_absolute_url }}" role="button" class="btn btn-default">&larr; Back to {{ call.title }}</a>
+            <a href="{{ call.get_absolute_url }}" role="button" class="btn btn-default">&larr; Back to <em>{{ call.title }}</em></a>
         </p>
         {% if call.owner == user and call.status > 3 and submission.status not in 'ar'|make_list %}
             <h2>Submission actions</h2>
@@ -38,15 +38,18 @@
         {% endif %}
         <h2>Submission information</h2>
         <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Cover letter</h3>
+            </div>
             <div class="panel-body">
                 {{ submission.cover|safe }}
-                <p class="text-muted">
-                    Created <abbr data-toggle="tooltip" data-placement="bottom" title="{{ submission.ctime|date:'r' }}">
-                        {{ submission.ctime|naturalday }}
-                    </abbr> &bullet;
-                    {{ submission.wordcount }} words &bullet;
-                    {{ submission.get_status_display }}
-                </p>
+            </div>
+            <div class="panel-footer">
+                Created <abbr data-toggle="tooltip" data-placement="bottom" title="{{ submission.ctime|date:'r' }}">
+                    {{ submission.ctime|naturalday }}
+                </abbr> &bullet;
+                {{ submission.wordcount }} words &bullet;
+                Status: {{ submission.get_status_display|lower }}
             </div>
         </div>
     </div>
@@ -56,7 +59,8 @@
         <h2>Submission text</h2>
         <p class="small">
             <a href="{% url 'submitify:view_submission_text' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}" target="_blank">View in own window</a> &bullet;
-            <a href="{% url 'submitify:view_submission_file' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}">View as PDF</a>
+            <a href="{% url 'submitify:view_submission_file' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}">View as PDF</a> &bullet;
+            <a href="{% url 'submitify:view_original_file' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}">View original file</a>
         </p>
         <div class="panel panel-default">
             <div class="panel-body">
@@ -70,40 +74,52 @@
 <div class="row">
     <div class="col-md-8 col-md-offset-2">
         <h2>Review</h2>
-        <form method="post" action="{% if review.id %}{% url 'submitify:edit_review' call_id=call.id call_slug=call.title|slugify submission_id=submission.id review_id=review.id %}{% else %}{% url 'submitify:create_review' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}{% endif %}">
-            {% csrf_token %}
-            <div class="radio">
+        {% if can_review %}
+            <form method="post" action="{% if review.id %}{% url 'submitify:edit_review' call_id=call.id call_slug=call.title|slugify submission_id=submission.id review_id=review.id %}{% else %}{% url 'submitify:create_review' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}{% endif %}">
+                {% csrf_token %}
                 <strong>Rating</strong><br />
-                <label>
-                    <input type="radio" name="rating" value="1"{% if form.rating.value == 1 %} checked{% endif %}> 1
-                </label>
-                <label>
-                    <input type="radio" name="rating" value="2"{% if form.rating.value == 2 %} checked{% endif %}> 2
-                </label>
-                <label>
-                    <input type="radio" name="rating" value="3"{% if form.rating.value == 3 %} checked{% endif %}> 3
-                </label>
-                <label>
-                    <input type="radio" name="rating" value="4"{% if form.rating.value == 4 %} checked{% endif %}> 4
-                </label>
-                <label>
-                    <input type="radio" name="rating" value="5"{% if form.rating.value == 5 %} checked{% endif %}> 5
-                </label>
-            </div>
-            <div class="form-group">
-                {{ form.yea_nay.label_tag}}
-                <select id="id_yea_nay" name="yea_nay" class="form-control">
-                    <option value="a"{% if form.yea_nay.value == 'a' %} selected{% endif %}>Accept</option>
-                    <option value="r"{% if form.yea_nay.value == 'a' %} selected{% endif %}>Reject</option>
-                </select>
-                <p class="help-block">Vote whether to accept or reject this submission</p>
-            </div>
-            <div class="form-group">
-                {{ form.comments_raw.label_tag }}
-                <textarea id="id_comments_raw" name="comments_raw" class="form-control">{% if form.comments_raw.value %}{{ form.comments_raw.value }}{% endif %}</textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit review</button>
-        </form>
+                <div class="radio-inline">
+                    <label>
+                        <input type="radio" name="rating" value="1"{% if form.rating.value == 1 %} checked{% endif %}> 1
+                    </label>
+                </div>
+                <div class="radio-inline">
+                    <label>
+                        <input type="radio" name="rating" value="2"{% if form.rating.value == 2 %} checked{% endif %}> 2
+                    </label>
+                </div>
+                <div class="radio-inline">
+                    <label>
+                        <input type="radio" name="rating" value="3"{% if form.rating.value == 3 %} checked{% endif %}> 3
+                    </label>
+                </div>
+                <div class="radio-inline">
+                    <label>
+                        <input type="radio" name="rating" value="4"{% if form.rating.value == 4 %} checked{% endif %}> 4
+                    </label>
+                </div>
+                <div class="radio-inline">
+                    <label>
+                        <input type="radio" name="rating" value="5"{% if form.rating.value == 5 %} checked{% endif %}> 5
+                    </label>
+                </div>
+                <div class="form-group">
+                    {{ form.yea_nay.label_tag}}
+                    <select id="id_yea_nay" name="yea_nay" class="form-control">
+                        <option value="a"{% if form.yea_nay.value == 'a' %} selected{% endif %}>Accept</option>
+                        <option value="r"{% if form.yea_nay.value == 'r' %} selected{% endif %}>Reject</option>
+                    </select>
+                    <p class="help-block">Vote whether to accept or reject this submission</p>
+                </div>
+                <div class="form-group">
+                    {{ form.comments_raw.label_tag }}
+                    <textarea id="id_comments_raw" name="comments_raw" class="form-control">{% if form.comments_raw.value %}{{ form.comments_raw.value }}{% endif %}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit review</button>
+            </form>
+        {% else %}
+            <p><em>Reviewing is now closed</em></p>
+        {% endif %}
     </div>
 </div>
 {% if call.owner == user %}
@@ -113,7 +129,7 @@
             <p>
                 {{ submission.review_set.count }}/{{ call.reviews_per_submission }} needed reviews &bullet;
                 {% with stats=submission.get_review_stats %}
-                    <strong class="text-success">{{ stats.accept }}</strong>/<strong class="text-danger">{{ stats.reject }}</strong> &bullet;
+                    Yea/nay: <strong class="text-success">{{ stats.accept }}</strong>/<strong class="text-danger">{{ stats.reject }}</strong> &bullet;
                     Average rating: {{ stats.average_rating }}
                 {% endwith %}
             </p>
@@ -134,15 +150,19 @@
                             <td>{{ review.rating }}/5</td>
                             <td class="{% if review.yea_nay == 'a' %}success{% else %}danger{% endif %}">{{ review.get_yea_nay_display }}</td>
                             <td>
-                                <abbr data-toggle="tooltip" data-placement="bottom" title="{{ rating.ctime|date:'r' }}">
-                                    {{ rating.ctime|naturaltime }}
+                                <abbr data-toggle="tooltip" data-placement="bottom" title="{{ review.ctime|date:'r' }}">
+                                    {{ review.ctime|naturaltime }}
                                 </abbr>
                             </td>
                             <td>
-                                <abbr data-toggle="tooltip" data-placement="bottom" title="{{ rating.mtime|date:'r' }}">
-                                    {{ rating.mtime|naturaltime }}
+                                <abbr data-toggle="tooltip" data-placement="bottom" title="{{ review.mtime|date:'r' }}">
+                                    {{ review.mtime|naturaltime }}
                                 </abbr>
                             </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5"><em>There are no reviews to list</em></td>
                         </tr>
                     {% endfor %}
                 </tbody>

@@ -1,5 +1,6 @@
 .PHONY: test
 test:
+	flake8 --config=.flake8
 	coverage erase
 	coverage run \
 		--source=submitify,submitify/views,usermgmt_standalone \

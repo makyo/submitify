@@ -9,7 +9,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-submitify',
-    version='0.0.3',
+    version='0.0.4',
     packages=find_packages(),
     include_package_data=True,
     license='MIT License',
@@ -17,8 +17,9 @@ setup(
     long_description=README,
     url='https://github.com/OpenFurry/submitify',
     author='OpenFurry contributors',
-    author_email='makyo@drab-makyo.com',
+    author_email='contributors@openfurry.org',
     classifiers=[
+        'Development Status :: 2 - Pre-Alpha',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Framework :: Django :: 1.10',

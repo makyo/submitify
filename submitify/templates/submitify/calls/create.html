@@ -23,8 +23,7 @@
             <div class="form-group">
                 {{ form.end_date.label_tag }}
                 {{ form.end_date.errors }}
-                <input type="date" id="id_end_date" class="form-control" maxlength="10" name="end_date"{% if form.end_date.value %} value="{{ form.end_date.value }}"{% endif %} />
-                <p class="help-block">Enter dates in the format MM/DD/YYYY</p>
+                <input type="date" id="id_end_date" class="form-control" maxlength="10" name="end_date"{% if form.end_date.value %} value="{{ form.end_date.value|date:'Y-m-d' }}"{% endif %} />
             </div>
             <div class="form-group">
                 {{ form.about_raw.label_tag }}
@@ -52,23 +51,29 @@
                     {{ form.paid }} Is paid
                 </label>
             </div>
+            <div class="checkbox">
+                <label>
+                    {{ form.invite_only }} Invite only
+                </label>
+            </div>
             <p>
                 <button class="btn btn-success add-guideline-button">Add submission guideline</button>
             </p>
             <div class="submission-guidelines">
+                {{ guideline_set.management_form }}
                 {% for guideline in guideline_set %}
                     <div class="submission-guideline panel panel-default">
                         <div class="panel-body">
                             <div class="form-group">
                                 <label for="id_form-{{ forloop.counter0 }}-key">Guideline name</label>
-                                <select class="form-control" name="form-{{ forloop.counter0 }}-key">
-                                {% for default in guideline_defaults %}
-                                    <option{% if guideline.key.value == default %} selected{% endif %}>{{default}}</option>
-                                {% endfor %}
+                                <input type="text" id="id_form-{{ forloop.counter0 }}-key" name="form-{{ forloop.counter0 }}-key"{% if guideline.key.value %} value="{{ guideline.key.value }}"{% endif %} /><br />
+                                <em>Some sensible defaults:</em><br />
+                                <select class="form-control select-update" name="form-{{ forloop.counter0 }}-key" data-update="id_form-{{ forloop.counter0 }}-key">
+                                    <option value=""{% if not guideline.key.value %} checked{% endif %}>----------</option>
+                                    {% for default in guideline_defaults %}
+                                        <option value="{{default}}"{% if guideline.key.value == default %} selected{% endif %}>{{default}}</option>
+                                    {% endfor %}
                                 </select>
-                                <em>or</em><br />
-                                <input type="text" id="id_form-{{ forloop.counter0 }}-key" name="form-{{ forloop.counter0 }}-key"{% if guideline.key.value and guideline.key.value not in guideline_defaults %} value="{{ guideline.key.value }}"{% endif %} />
-                                <p class="help-block">Use the dropdown whenever possible</p>
                             </div>
                             <div class="form-group">
                                 <label for="id_form-{{ forloop.counter0 }}-value">Guideline text</label>
@@ -83,14 +88,16 @@
     </div>
 </div>
 <script type="text/javascript">
+$(function() {
     window.guidelines_added = $('.submission-guideline').length;
     window.guideline_template = '<div class="submission-guideline panel panel-default">'
         + '<div class="panel-body">'
         + '<div class="form-group">'
         + '<label for="id_form-{id}-key">Guideline name</label>'
-        + '<select class="form-control" name="form-{id}-key">'
+        + '<select class="form-control select-update" name="form-{id}-key" data-update="id_form-{id}-key">'
+        + '<option value="" checked>----------</option>'
         {% for default in guideline_defaults %}
-            + '<option>{{default}}</option>'
+            + '<option value="{{default}}">{{default}}</option>'
         {% endfor %}
         + '</select>'
         + '<em>or</em><br />'
@@ -107,6 +114,11 @@
         e.preventDefault();
         $('.submission-guidelines').append(window.guideline_template.replace(/\{id\}/g, window.guidelines_added));
         window.guidelines_added++;
+        $('#id_form-TOTAL_FORMS').val(window.guidelines_added);
     });
+    $('.select-update').change(function(e) {
+        $('#' + $(this).data('update')).val($(this).val());
+    })
+});
 </script>
 {% endblock %}

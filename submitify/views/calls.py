@@ -24,22 +24,17 @@ from submitify.models import (
 
 
 def list_calls(request):
-    subtitle_parts = ['open']
     acceptable_statuses = [Call.OPEN]
     if 'opening-soon' in request.GET:
         acceptable_statuses.append(Call.NOT_OPEN_YET)
-        subtitle_parts.append('opening soon')
     if 'closed-reviewing' in request.GET:
         acceptable_statuses.append(Call.CLOSED_REVIEWING)
-        subtitle_parts.append('closed (reviewing)')
     if 'closed-completed' in request.GET:
         acceptable_statuses.append(Call.CLOSED_COMPLETED)
-        subtitle_parts.append('closed (completed)')
+    print(acceptable_statuses)
     calls = Call.objects.filter(status__in=acceptable_statuses)
-    subtitle = 'Showing calls: {}'.format(', '.join(subtitle_parts))
     return render(request, 'submitify/calls/list.html', {
         'title': 'Calls for submissions',
-        'subtitle': subtitle,
         'calls': calls,
     })
 
@@ -49,8 +44,9 @@ def view_call(request, call_id=None, call_slug=None):
     notifications = Notification.objects.filter(
         call=call, targets__in=[request.user])
     can_submit = True
-    if (call.restricted_to.count() > 0 and
-            request.user not in call.restricted_to.all()):
+    if call.status != Call.OPEN:
+        can_submit = False
+    elif (call.invite_only and request.user not in call.restricted_to.all()):
         can_submit = False
     elif (not call.readers_can_submit and request.user in call.readers.all()):
         can_submit = False
@@ -100,8 +96,8 @@ def edit_call(request, call_id=None, call_slug=None):
         return render(request, 'submitify/permission_denied.html', {},
                       status=403)
     form = CallForm(instance=call)
-    guideline_set = GuidelineFormset(initial=[g for g in
-                                              call.guideline_set.all()])
+    guideline_set = GuidelineFormset(initial=[
+        {'key': g.key, 'value': g.value} for g in call.guideline_set.all()])
     if request.method == 'POST':
         form = CallForm(request.POST, instance=call)
         guideline_set = GuidelineFormset(request.POST)

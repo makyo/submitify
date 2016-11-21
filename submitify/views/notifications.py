@@ -20,7 +20,8 @@ def view_notification(request, call_id=None, call_slug=None,
     call = get_object_or_404(Call, pk=call_id)
     notification = get_object_or_404(Notification, pk=notification_id,
                                      call=call)
-    if request.user != call.owner or request.user not in notification.target:
+    if not (request.user == call.owner or
+            request.user in notification.targets.all()):
         messages.error(request, 'Only the call owner or notified individuals '
                        'may view this notification')
         return render(request, 'submitify/permission_denied.html', {},
@@ -52,16 +53,17 @@ def send_notification(request, call_id=None, call_slug=None,
         if form.is_valid():
             notification = form.save(commit=False)
             notification.call = call
+            notification.notification_type = notification_type[0]
             submissions = call.submission_set.all()
             if notification_type == 'accept':
                 submissions = submissions.filter(status=Submission.ACCEPTED)
             if notification_type == 'reject':
                 submissions = submissions.filter(status=Submission.REJECTED)
+            notification.save()
+            form.save_m2m()
             targets = [s.owner for s in submissions]
             for target in targets:
                 notification.targets.add(target)
-            notification.save()
-            form.save_m2m()
             return redirect(notification.get_absolute_url())
     return render(request, 'submitify/notifications/create.html', {
         'title': 'Send notification',
