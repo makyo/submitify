@@ -134,6 +134,7 @@ def view_submission(request, call_id=None, call_slug=None,
         'form': form,
         'review': review,
         'submission': submission,
+        'can_review': can_review,
     })
 
 

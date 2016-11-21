@@ -23,6 +23,7 @@ class CallForm(forms.ModelForm):
             'reviews_per_submission',
             'anonymous_submissions',
             'readers_can_submit',
+            'invite_only',
         ]
 
 

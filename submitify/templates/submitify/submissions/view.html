@@ -20,7 +20,7 @@
 <div class="row">
     <div class="col-md-8 col-md-offset-2">
         <p>
-            <a href="{{ call.get_absolute_url }}" role="button" class="btn btn-default">&larr; Back to {{ call.title }}</a>
+            <a href="{{ call.get_absolute_url }}" role="button" class="btn btn-default">&larr; Back to <em>{{ call.title }}</em></a>
         </p>
         {% if call.owner == user and call.status > 3 and submission.status not in 'ar'|make_list %}
             <h2>Submission actions</h2>
@@ -38,15 +38,18 @@
         {% endif %}
         <h2>Submission information</h2>
         <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Cover letter</h3>
+            </div>
             <div class="panel-body">
                 {{ submission.cover|safe }}
-                <p class="text-muted">
-                    Created <abbr data-toggle="tooltip" data-placement="bottom" title="{{ submission.ctime|date:'r' }}">
-                        {{ submission.ctime|naturalday }}
-                    </abbr> &bullet;
-                    {{ submission.wordcount }} words &bullet;
-                    {{ submission.get_status_display }}
-                </p>
+            </div>
+            <div class="panel-footer">
+                Created <abbr data-toggle="tooltip" data-placement="bottom" title="{{ submission.ctime|date:'r' }}">
+                    {{ submission.ctime|naturalday }}
+                </abbr> &bullet;
+                {{ submission.wordcount }} words &bullet;
+                Status: {{ submission.get_status_display|lower }}
             </div>
         </div>
     </div>
@@ -104,7 +107,7 @@
                     {{ form.yea_nay.label_tag}}
                     <select id="id_yea_nay" name="yea_nay" class="form-control">
                         <option value="a"{% if form.yea_nay.value == 'a' %} selected{% endif %}>Accept</option>
-                        <option value="r"{% if form.yea_nay.value == 'a' %} selected{% endif %}>Reject</option>
+                        <option value="r"{% if form.yea_nay.value == 'r' %} selected{% endif %}>Reject</option>
                     </select>
                     <p class="help-block">Vote whether to accept or reject this submission</p>
                 </div>
@@ -156,6 +159,10 @@
                                     {{ review.mtime|naturaltime }}
                                 </abbr>
                             </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5"><em>There are no reviews to list</em></td>
                         </tr>
                     {% endfor %}
                 </tbody>

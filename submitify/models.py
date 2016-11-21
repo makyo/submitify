@@ -231,7 +231,7 @@ class Notification(models.Model):
         # TODO send email
 
     def get_absolute_url(self):
-        return reverse('submitify:view_submission', kwargs={
+        return reverse('submitify:view_notification', kwargs={
             'call_id': self.call.id,
             'call_slug': slugify(self.call.title),
             'notification_id': self.id,

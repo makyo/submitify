@@ -2,19 +2,20 @@
 {% load humanize %}
 
 {% block content %}
-<style>
-.striped-list li {
-    padding: 4px;
-}
-.striped-list li:nth-child(odd) {
-    background-color: #f8f8f8;
-}
-</style>
 <div class="row">
     <div class="col-md-8 col-md-offset-2">
         {% if user == call.owner and call.get_next_status %}
-            <p class="text-right">
-                <a href="{% url 'submitify:next_step' call_id=call.id call_slug=call.title|slugify %}" role="button" class="btn btn-primary">Change status to <em>{{ call.get_next_status.1|lower }}</em></a>
+            <p>
+                <div class="dropdown pull-right">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="update-call-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        Call actions <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li><a href="{% url 'submitify:next_step' call_id=call.id call_slug=call.title|slugify %}">Change status to <em>{{ call.get_next_status.1|lower }}</em></a></li>
+                        <li><a href="{% url 'submitify:edit_call' call_id=call.id call_slug=call.title|slugify %}">Edit <em>{{ call.title }}</em></a></li>
+                    </ul>
+                </div>
+                <div class="clearfix"></div>
             </p>
         {% endif %}
         <div class="panel panel-default">
@@ -27,7 +28,7 @@
 <div class="row">
     <div class="col-md-8 col-md-offset-2">
         <h2>Details</h2>
-        <dl class="dl-horizontal">
+        <dl class="dl-indent">
             <dt>Genre</dt>
             <dd>{{ call.genre }}</dd>
             <dt>Submission length</dt>
@@ -41,7 +42,11 @@
                 </abbr>
             </dd>
             <dt>Ends</dt>
-            <dd>{{ call.end_date|naturalday }}</dd>
+            <dd>
+                <abbr data-toggle="tooltip" data-placement="bottom" title="{{ call.end_date|date:'D, j M Y' }}">
+                    {{ call.end_date|naturalday }}
+                </abbr>
+            </dd>
             <dt>Anonymous submissions</dt>
             <dd>{{ call.anonymous_submissions|yesno }}</dd>
             <dt>Open submissions</dt>
@@ -65,7 +70,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-4 col-md-offset-2">
+    <div class="col-md-{% if with_submissions %}4{% else %}8{% endif %} col-md-offset-2">
         {% if user.is_authenticated %}
             <h2>Submit</h2>
             {% if can_submit %}
@@ -104,10 +109,16 @@
             {% endif %}
             {% if call.owner == user %}
                 <h2>Send a notification</h2>
-                <a href="{% url 'submitify:send_notification' call_id=call.id call_slug=call.title|slugify notification_type='basic' %}" class="btn btn-default" role="button">To all authors</a>
+                <p>
+                    <a href="{% url 'submitify:send_notification' call_id=call.id call_slug=call.title|slugify notification_type='basic' %}" class="btn btn-default" role="button">To all authors</a>
+                </p>
                 {% if call.status >= 4 %}
-                    <a href="{% url 'submitify:send_notification' call_id=call.id call_slug=call.title|slugify notification_type='accept' %}" class="btn btn-default" role="button">To accepted authors</a>
-                    <a href="{% url 'submitify:send_notification' call_id=call.id call_slug=call.title|slugify notification_type='reject' %}" class="btn btn-default" role="button">To rejected authors</a>
+                    <p>
+                        <a href="{% url 'submitify:send_notification' call_id=call.id call_slug=call.title|slugify notification_type='accept' %}" class="btn btn-success" role="button">To accepted authors</a>
+                    </p>
+                    <p>
+                        <a href="{% url 'submitify:send_notification' call_id=call.id call_slug=call.title|slugify notification_type='reject' %}" class="btn btn-danger" role="button">To rejected authors</a>
+                    </p>
                 {% endif %}
             {% endif %}
         {% else %}
@@ -132,15 +143,18 @@
         <div class="col-md-8 col-md-offset-2">
             <h2>Notifications</h2>
             {% for notification in call.notification_set.all %}
-                {% if user == call.owner or user in notification.targets %}
-                    <div class="panel panel-default">
-                        <div class="panel-header">
-                            <a href="{{ notification.get_absolute_url }}">{{ notification.get_notification_type_display }}</a> from {{ call.owner }} <abbr data-toggle="tooltip" data-placement="bottom" title="{{ notification.ctime|date:'r' }}">
-                                {{ notification.ctime|naturaltime }}
-                            </abbr>
+                {% if user == call.owner or user in notification.targets.all %}
+                    <div class="panel panel-{% if notification.notification_type == 'a' %}success{% elif notification.notification_type == 'r' %}danger{% else %}default{% endif %}">
+                        <div class="panel-heading">
+                            <a href="{{ notification.get_absolute_url }}" class="panel-title">{{ notification.subject }}</a>
                         </div>
                         <div class="panel-body">
                             {{ notification.body_rendered|safe }}
+                        </div>
+                        <div class="panel-footer">
+                            {{ notification.get_notification_type_display }} from {{ call.owner }} <abbr data-toggle="tooltip" data-placement="bottom" title="{{ notification.ctime|date:'r' }}">
+                                {{ notification.ctime|naturaltime }}
+                            </abbr>
                         </div>
                     </div>
                 {% endif %}
@@ -187,10 +201,14 @@
                             <td>{{ submission.wordcount }}</td>
                             <td>
                                 <abbr data-toggle="tooltip" data-placement="bottom" title="{{ submission.ctime|date:'r' }}">
-                                    {{ submission.ctime|naturalday }}
+                                    {{ submission.ctime|naturaltime }}
                                 </abbr>
                             </td>
                             <td class="{{ submission.get_class_for_status }}">{{ submission.get_status_display }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="{% if call.anonymous_submissions %}4{% else %}5{% endif %}"><em>No submissions to list</em></td>
                         </tr>
                     {% endfor %}
                 </tbody>

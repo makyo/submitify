@@ -31,6 +31,7 @@ def list_calls(request):
         acceptable_statuses.append(Call.CLOSED_REVIEWING)
     if 'closed-completed' in request.GET:
         acceptable_statuses.append(Call.CLOSED_COMPLETED)
+    print(acceptable_statuses)
     calls = Call.objects.filter(status__in=acceptable_statuses)
     return render(request, 'submitify/calls/list.html', {
         'title': 'Calls for submissions',
@@ -95,8 +96,8 @@ def edit_call(request, call_id=None, call_slug=None):
         return render(request, 'submitify/permission_denied.html', {},
                       status=403)
     form = CallForm(instance=call)
-    guideline_set = GuidelineFormset(initial=[g for g in
-                                              call.guideline_set.all()])
+    guideline_set = GuidelineFormset(initial=[
+        {'key': g.key, 'value': g.value} for g in call.guideline_set.all()])
     if request.method == 'POST':
         form = CallForm(request.POST, instance=call)
         guideline_set = GuidelineFormset(request.POST)
