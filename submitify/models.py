@@ -77,6 +77,7 @@ class Call(models.Model):
 
 class Guideline(models.Model):
     DEFAULT_KEYS = (
+        'Content restrictions',
         'Cover letter requirements',
         'Previous publication',
         'Multiple submissions',
@@ -88,7 +89,13 @@ class Guideline(models.Model):
 
     call = models.ForeignKey(Call)
     key = models.CharField(max_length=100)
-    value = models.TextField()
+    value_raw = models.TextField()
+    value_rendered = models.TextField()
+
+    def save(self):
+        self.value_rendered = markdown.markdown(
+            self.value_raw, extensions=['markdown.extensions.extra'])
+        super(Guideline, self).save()
 
 
 class Submission(models.Model):
