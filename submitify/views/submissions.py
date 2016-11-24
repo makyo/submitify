@@ -30,7 +30,7 @@ from submitify.models import (
 
 def manuscriptify(instance):
     tempdir = tempfile.mkdtemp()
-    contents = pypandoc.convert_file(instance.original_file.name, 'latex')
+    contents = pypandoc.convert_file(instance.original_file.path, 'latex')
     rendered = render_to_string('submitify/manuscript.tex', context={
         'call': instance.call.title,
         'title': instance.title,
@@ -38,19 +38,18 @@ def manuscriptify(instance):
     })
     with open(os.path.join(tempdir, 'manuscript.tex'), 'w') as f:
         f.write(rendered)
-        subprocess.call([
-            'pdflatex',
-            '-output-directory',
-            tempdir,
-            os.path.join(tempdir, 'manuscript.tex')
-        ])
-        file_dir = os.path.dirname(
-            os.path.abspath(instance.original_file.path))
-        with open(os.path.join(tempdir, 'manuscript.pdf'), 'rb') as outfile:
-            instance.submission_file.save(
-                os.path.join(file_dir, '{}.pdf'.format(instance.id)),
-                outfile,
-                save=False)
+    subprocess.call([
+        'pdflatex',
+        '-output-directory',
+        tempdir,
+        os.path.join(tempdir, 'manuscript.tex')
+    ])
+    file_dir = os.path.dirname(os.path.abspath(instance.original_file.path))
+    with open(os.path.join(tempdir, 'manuscript.pdf'), 'rb') as outfile:
+        instance.submission_file.save(
+            os.path.join(file_dir, '{}.pdf'.format(instance.id)),
+            outfile,
+            save=False)
     shutil.rmtree(tempdir, True)
 
 
@@ -178,7 +177,7 @@ def view_original_file(request, call_id=None, call_slug=None,
     contents = submission.original_file.read()
     mime = magic.Magic(mime=True)
     return HttpResponse(contents, content_type=mime.from_file(
-        submission.original_file.name))
+        submission.original_file.path))
 
 
 @login_required

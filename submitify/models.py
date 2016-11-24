@@ -142,7 +142,7 @@ class Submission(models.Model):
                         if 'process_file' in kwargs else False)
         if process_file:
             self.submission_text = markdown.markdown(
-                pypandoc.convert_file(self.original_file.name, 'md'))
+                pypandoc.convert_file(self.original_file.path, 'md'))
             self.wordcount = wc.wc(
                 None, pypandoc.convert(
                     self.submission_text, 'plain', 'html'))['counts']['words']
