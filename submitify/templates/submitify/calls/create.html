@@ -65,10 +65,14 @@
                     <div class="submission-guideline panel panel-default">
                         <div class="panel-body">
                             <div class="form-group">
-                                <label for="id_form-{{ forloop.counter0 }}-key">Guideline name</label>
-                                <input type="text" id="id_form-{{ forloop.counter0 }}-key" name="form-{{ forloop.counter0 }}-key"{% if guideline.key.value %} value="{{ guideline.key.value }}"{% endif %} /><br />
+                                <div class="row form-horizontal">
+                                    <label for="id_form-{{ forloop.counter0 }}-key" class="col-sm-3 control-label">Guideline name</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" id="id_form-{{ forloop.counter0 }}-key" class="form-control" name="form-{{ forloop.counter0 }}-key"{% if guideline.key.value %} value="{{ guideline.key.value }}"{% endif %} />
+                                    </div>
+                                </div>
                                 <em>Some sensible defaults:</em><br />
-                                <select class="form-control select-update" name="form-{{ forloop.counter0 }}-key" data-update="id_form-{{ forloop.counter0 }}-key">
+                                <select class="form-control select-update" data-update="id_form-{{ forloop.counter0 }}-key">
                                     <option value=""{% if not guideline.key.value %} checked{% endif %}>----------</option>
                                     {% for default in guideline_defaults %}
                                         <option value="{{default}}"{% if guideline.key.value == default %} selected{% endif %}>{{default}}</option>
@@ -76,8 +80,8 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="id_form-{{ forloop.counter0 }}-value">Guideline text</label>
-                                <textarea id="id_form-{{ forloop.counter0 }}-value" name="form-{{ forloop.counter0 }}-value" class="form-control">{% if guideline.value.value %}{{ guideline.value.value }}{% endif %}</textarea>
+                                <label for="id_form-{{ forloop.counter0 }}-value_raw">Guideline text</label>
+                                <textarea id="id_form-{{ forloop.counter0 }}-value_raw" name="form-{{ forloop.counter0 }}-value_raw" class="form-control">{% if guideline.value_raw.value %}{{ guideline.value_raw.value }}{% endif %}</textarea>
                             </div>
                         </div>
                     </div>
@@ -90,35 +94,43 @@
 <script type="text/javascript">
 $(function() {
     window.guidelines_added = $('.submission-guideline').length;
-    window.guideline_template = '<div class="submission-guideline panel panel-default">'
-        + '<div class="panel-body">'
-        + '<div class="form-group">'
-        + '<label for="id_form-{id}-key">Guideline name</label>'
-        + '<select class="form-control select-update" name="form-{id}-key" data-update="id_form-{id}-key">'
-        + '<option value="" checked>----------</option>'
+    window.guideline_template =
+        '<div class="submission-guideline panel panel-default">' +
+        '<div class="panel-body">' +
+        '<div class="form-group">' +
+        '<div class="row form-horizontal">' +
+        '<label for="id_form-{id}-key" class="col-sm-3 control-label">Guideline name</label>' +
+        '<div class="col-sm-9">' +
+        '<input type="text" id="id_form-{id}-key" class="form-control" name="form-{id}-key" />' +
+        '</div>' +
+        '</div>' +
+        '<em>Some sensible defaults:</em><br />' +
+        '<select class="form-control select-update" data-update="id_form-{id}-key">' +
+        '<option value=""{% if not guideline.key.value %} checked{% endif %}>----------</option>' +
         {% for default in guideline_defaults %}
-            + '<option value="{{default}}">{{default}}</option>'
+            '<option value="{{default}}">{{default}}</option>' +
         {% endfor %}
-        + '</select>'
-        + '<em>or</em><br />'
-        + '<input type="text" id="id_form-{id}-key" name="form-{id}-key" />'
-        + '<p class="help-block">Use the dropdown whenever possible</p>'
-        + '</div>'
-        + '<div class="form-group">'
-        + '<label for="id_form-{id}-value">Guideline text</label>'
-        + '<textarea id="id_form-{id}-value" name="form-{id}-value" class="form-control"></textarea>'
-        + '</div>'
-        + '</div>'
-        + '</div>';
+        '</select>' +
+        '</div>' +
+        '<div class="form-group">' +
+        '<label for="id_form-{id}-value_raw">Guideline text</label>' +
+        '<textarea id="id_form-{id}-value_raw" name="form-{id}-value_raw" class="form-control"></textarea>' +
+        '</div>' +
+        '</div>' +
+        '</div>';
     $('.add-guideline-button').click(function(e) {
         e.preventDefault();
         $('.submission-guidelines').append(window.guideline_template.replace(/\{id\}/g, window.guidelines_added));
         window.guidelines_added++;
         $('#id_form-TOTAL_FORMS').val(window.guidelines_added);
+        add_event();
     });
+    add_event();
+});
+function add_event() {
     $('.select-update').change(function(e) {
         $('#' + $(this).data('update')).val($(this).val());
     })
-});
+}
 </script>
 {% endblock %}

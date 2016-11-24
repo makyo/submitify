@@ -26,7 +26,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-8 col-md-offset-2">
+    <div class="col-md-4 col-md-offset-2">
         <h2>Details</h2>
         <dl class="dl-indent">
             <dt>Genre</dt>
@@ -52,19 +52,24 @@
             <dt>Open submissions</dt>
             <dd>
                 {% if call.invite_only %}
-                    No; submissions limited
+                    no; submissions limited
                     {% if user in call.readers %}
                         to {{ call.restricted_to.all|join:', ' }}
                     {% endif %}
                 {% else %}
-                    Yes
+                    yes
                 {% endif %}
             </dd>
             <dt>Slush-pile readers can submit</dt>
             <dd>{{ call.readers_can_submit|yesno }}</dd>
+        </dl>
+    </div>
+    <div class="col-md-4">
+        <h2>&nbsp;</h2>
+        <dl class="dl-indent">
             {% for guideline in call.guideline_set.all %}
                 <dt>{{ guideline.key }}</dt>
-                <dd>{{ guideline.value }}</dd>
+                <dd>{{ guideline.value_rendered|safe }}</dd>
             {% endfor %}
         </dl>
     </div>

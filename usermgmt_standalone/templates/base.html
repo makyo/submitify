@@ -28,7 +28,7 @@
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav">
                         <li><a href="{% url 'submitify:list_calls' %}">List calls for submissions</a></li>
-                        {% if user.is_authenticated %}
+                        {% if perms.submitify.add_call %}
                             <li><a href="{% url 'submitify:create_call' %}">Create a new call for submissions</a></li>
                         {% endif %}
                     </ul>

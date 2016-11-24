@@ -32,7 +32,7 @@ class GuidelineForm(forms.ModelForm):
 
     class Meta:
         model = Guideline
-        fields = ['key', 'value']
+        fields = ['key', 'value_raw']
 
 
 GuidelineFormset = forms.formset_factory(GuidelineForm)

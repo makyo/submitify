@@ -97,7 +97,8 @@ def edit_call(request, call_id=None, call_slug=None):
                       status=403)
     form = CallForm(instance=call)
     guideline_set = GuidelineFormset(initial=[
-        {'key': g.key, 'value': g.value} for g in call.guideline_set.all()])
+        {'key': g.key, 'value_raw': g.value_raw}
+        for g in call.guideline_set.all()])
     if request.method == 'POST':
         form = CallForm(request.POST, instance=call)
         guideline_set = GuidelineFormset(request.POST)
