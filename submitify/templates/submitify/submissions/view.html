@@ -48,6 +48,9 @@
                 Created <abbr data-toggle="tooltip" data-placement="bottom" title="{{ submission.ctime|date:'r' }}">
                     {{ submission.ctime|naturalday }}
                 </abbr> &bullet;
+                {% if not call.anonymous_submissions or call.status > 3 %}
+                    By {{ submission.owner.username }} ({{ submission.owner.email }}) &bullet;
+                {% endif %}
                 {{ submission.wordcount }} words &bullet;
                 Status: {{ submission.get_status_display|lower }}
             </div>

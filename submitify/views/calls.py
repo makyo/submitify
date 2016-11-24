@@ -20,6 +20,7 @@ from submitify.models import (
     Call,
     Guideline,
     Notification,
+    Submission,
 )
 
 
@@ -162,9 +163,25 @@ def next_step(request, call_id=None, call_slug=None):
         messages.error(request, 'Only the call owner may edit the call')
         return render(request, 'submitify/permission_denied.html', {},
                       status=403)
+    can_proceed = True
     if (call.status + 1 > Call.MAX_STATUS):
         messages.error(request, 'Invalid status provided')
-    else:
+        can_proceed = False
+    if call.status == Call.CLOSED_REVIEWING:
+        unreviewed = False
+        for submission in call.submission_set.all():
+            if (submission.status == Submission.SUBMITTED or
+                    submission.status == Submission.IN_REVIEW):
+                unreviewed = True
+        if unreviewed:
+            messages.error(request, 'Some submissions still in review')
+            can_proceed = False
+    if can_proceed:
+        if call.status == Call.OPEN:
+            for submission in call.submission_set.all():
+                if submission.status == Submission.SUBMITTED:
+                    submission.status = Submission.IN_REVIEW
+                    submission.save()
         call.status += 1
         call.save()
         messages.success(request, 'Status updated')

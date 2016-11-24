@@ -177,7 +177,7 @@
                 <thead>
                     <tr>
                         <th>Title</th>
-                        {% if not call.anonymous_submissions %}
+                        {% if not call.anonymous_submissions or call.status > 3 %}
                             <th>Author</th>
                         {% endif %}
                         <th>Words</th>
@@ -200,8 +200,11 @@
                                     </p>
                                 {% endif %}
                             </td>
-                            {% if not call.anonymous_submissions %}
-                                <td>{{ submission.owner.username }}</td>
+                            {% if not call.anonymous_submissions or call.status > 3 %}
+                                <td>
+                                    {{ submission.owner.username }}<br />
+                                    {{ submission.owner.email}}
+                                </td>
                             {% endif %}
                             <td>{{ submission.wordcount }}</td>
                             <td>

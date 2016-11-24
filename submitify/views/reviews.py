@@ -32,6 +32,12 @@ def create_review(request, call_id=None, call_slug=None, submission_id=None):
             review.submission = submission
             review.save()
             form.save_m2m()
+            review_count = submission.review_set.count()
+            if review_count == 1:
+                submission.status = Submission.IN_REVIEW
+            if review_count >= call.reviews_per_submission:
+                submission.status = Submission.REVIEWED
+            submission.save()
             return redirect(review.get_absolute_url())
     return render(request, 'submitify/reviews/create.html', {
         'call': call,

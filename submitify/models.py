@@ -107,7 +107,7 @@ class Submission(models.Model):
     STATUS_CHOICES = (
         (SUBMITTED, 'Submitted'),
         (IN_REVIEW, 'Needs reviews'),
-        (REVIEWED, 'Reviews completed'),
+        (REVIEWED, 'Requested reviews completed'),
         (ACCEPTED, 'Accepted'),
         (REJECTED, 'Rejected'),
     )
