@@ -30,38 +30,50 @@
         <h2>Details</h2>
         <dl class="dl-indent">
             <dt>Genre</dt>
-            <dd>{{ call.genre }}</dd>
+            <dd>
+                <p>{{ call.genre }}</p>
+            </dd>
             <dt>Submission length</dt>
-            <dd>{{ call.length }}</dd>
+            <dd>
+                <p>{{ call.length }}</p>
+            </dd>
             <dt>Paid</dt>
-            <dd>{{ call.paid|yesno }}</dd>
+            <dd>
+                <p>{{ call.paid|yesno }}</p>
+            </dd>
             <dt>Created</dt>
             <dd>
-                <abbr data-toggle="tooltip" data-placement="bottom" title="{{ call.ctime|date:'r' }}">
+                <p><abbr data-toggle="tooltip" data-placement="bottom" title="{{ call.ctime|date:'r' }}">
                     {{ call.ctime|naturaltime }}
-                </abbr>
+                </abbr></p>
             </dd>
             <dt>Ends</dt>
             <dd>
-                <abbr data-toggle="tooltip" data-placement="bottom" title="{{ call.end_date|date:'D, j M Y' }}">
+                <p><abbr data-toggle="tooltip" data-placement="bottom" title="{{ call.end_date|date:'D, j M Y' }}">
                     {{ call.end_date|naturalday }}
-                </abbr>
+                </abbr></p>
             </dd>
             <dt>Anonymous submissions</dt>
-            <dd>{{ call.anonymous_submissions|yesno }}</dd>
+            <dd>
+                <p>{{ call.anonymous_submissions|yesno }}</p>
+            </dd>
             <dt>Open submissions</dt>
             <dd>
-                {% if call.invite_only %}
-                    no; submissions limited
-                    {% if user in call.readers %}
-                        to {{ call.restricted_to.all|join:', ' }}
+                <p>
+                    {% if call.invite_only %}
+                        no; submissions limited
+                        {% if user in call.readers %}
+                            to {{ call.restricted_to.all|join:', ' }}
+                        {% endif %}
+                    {% else %}
+                        yes
                     {% endif %}
-                {% else %}
-                    yes
-                {% endif %}
+                </p>
             </dd>
             <dt>Slush-pile readers can submit</dt>
-            <dd>{{ call.readers_can_submit|yesno }}</dd>
+            <dd>
+                <p>{{ call.readers_can_submit|yesno }}</p>
+            </dd>
         </dl>
     </div>
     <div class="col-md-4">
