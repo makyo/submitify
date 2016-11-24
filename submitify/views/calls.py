@@ -42,8 +42,11 @@ def list_calls(request):
 
 def view_call(request, call_id=None, call_slug=None):
     call = get_object_or_404(Call, pk=call_id)
-    notifications = Notification.objects.filter(
-        call=call, targets__in=[request.user])
+    if request.user.is_authenticated:
+        notifications = Notification.objects.filter(
+            call=call, targets__in=[request.user])
+    else:
+        notifications = []
     can_submit = True
     if call.status != Call.OPEN:
         can_submit = False
