@@ -130,7 +130,7 @@
         <div class="col-md-8 col-md-offset-2">
             <h2>Reviews</h2>
             <p>
-                {{ submission.review_set.count }}/{{ call.reviews_per_submission }} needed reviews &bullet;
+                {{ submission.submitify_reviews.count }}/{{ call.reviews_per_submission }} needed reviews &bullet;
                 {% with stats=submission.get_review_stats %}
                     Yea/nay: <strong class="text-success">{{ stats.accept }}</strong>/<strong class="text-danger">{{ stats.reject }}</strong> &bullet;
                     Average rating: {{ stats.average_rating }}
@@ -147,7 +147,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for review in submission.review_set.all %}
+                    {% for review in submission.submitify_reviews.all %}
                         <tr>
                             <td><a href="{{ review.get_absolute_url }}">Review by {{ review.owner.username }}</a></td>
                             <td>{{ review.rating }}/5</td>

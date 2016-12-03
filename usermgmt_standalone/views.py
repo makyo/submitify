@@ -67,7 +67,7 @@ def view_user(request, username=None):
                 Call.NOT_OPEN_YET,
                 Call.OPEN
             ])
-        invite_calls_writing = request.user.submitify_calls_reading.filter(
+        invite_calls_writing = request.user.submitify_calls_editing.filter(
             status__in=[
                 Call.NOT_OPEN_YET,
                 Call.OPEN,

@@ -152,7 +152,7 @@ def invite_writer(request):
                       status=403)
     if not call.invite_only:
         messages.error(request, 'This call does not accept writer '
-                       'invitations')
+                       'submitify_invitations')
         return render(request, 'submitify/permission_denied.html', {},
                       status=403)
     call.restricted_to.add(reader)
@@ -172,7 +172,7 @@ def next_step(request, call_id=None, call_slug=None):
         can_proceed = False
     if call.status == Call.CLOSED_REVIEWING:
         unreviewed = False
-        for submission in call.submission_set.all():
+        for submission in call.submitify_submissions.all():
             if (submission.status == Submission.SUBMITTED or
                     submission.status == Submission.IN_REVIEW):
                 unreviewed = True
@@ -181,7 +181,7 @@ def next_step(request, call_id=None, call_slug=None):
             can_proceed = False
     if can_proceed:
         if call.status == Call.OPEN:
-            for submission in call.submission_set.all():
+            for submission in call.submitify_submissions.all():
                 if submission.status == Submission.SUBMITTED:
                     submission.status = Submission.IN_REVIEW
                     submission.save()

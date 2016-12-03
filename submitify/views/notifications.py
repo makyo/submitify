@@ -54,7 +54,7 @@ def send_notification(request, call_id=None, call_slug=None,
             notification = form.save(commit=False)
             notification.call = call
             notification.notification_type = notification_type[0]
-            submissions = call.submission_set.all()
+            submissions = call.submitify_submissions.all()
             if notification_type == 'accept':
                 submissions = submissions.filter(status=Submission.ACCEPTED)
             if notification_type == 'reject':
