@@ -39,10 +39,9 @@ submission_urls = [
     url(r'^original/$', submissions.view_original_file,
         name='view_original_file'),
     url(r'^reviews/', include(review_urls)),
-    url(r'^accept/$', submissions.accept_submission,
-        name='accept_submission'),
-    url(r'^reject/$', submissions.reject_submission,
-        name='reject_submission'),
+    url(r'^resolve/(?P<resolution_type>(accept|reject))/$',
+        submissions.resolve_submission,
+        name='resolve_submission'),
 ]
 
 call_urls = [

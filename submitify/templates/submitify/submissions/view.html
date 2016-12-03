@@ -26,11 +26,11 @@
             <h2>Submission actions</h2>
             <p>These are immediate and irreversable.  Choose wisely!</p>
             <p>
-                <a href="{% url 'submitify:accept_submission' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}" role="button" class="btn btn-success">
+                <a href="{% url 'submitify:resolve_submission' call_id=call.id call_slug=call.title|slugify submission_id=submission.id resolution_type='accept' %}" role="button" class="btn btn-success">
                     <span class="glyphicon glyphicon-ok"></span>
                     Accept submission
                 </a>
-                <a href="{% url 'submitify:reject_submission' call_id=call.id call_slug=call.title|slugify submission_id=submission.id %}" role="button" class="btn btn-danger">
+                <a href="{% url 'submitify:resolve_submission' call_id=call.id call_slug=call.title|slugify submission_id=submission.id resolution_type='reject' %}" role="button" class="btn btn-danger">
                     <span class="glyphicon glyphicon-remove"></span>
                     Reject submission
                 </a>
