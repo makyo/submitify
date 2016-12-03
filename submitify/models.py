@@ -37,7 +37,7 @@ class Call(models.Model):
                                          default=NOT_OPEN_YET)
     ctime = models.DateTimeField(auto_now_add=True)
     mtime = models.DateTimeField(auto_now=True)
-    end_date = models.DateField(blank=True)
+    end_date = models.DateField(blank=True, null=True)
     about_raw = models.TextField(verbose_name='about')
     about_rendered = models.TextField()
     paid = models.BooleanField(default=False)
