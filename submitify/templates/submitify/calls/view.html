@@ -155,11 +155,11 @@
         </div>
     {% endif %}
 </div>
-{% if user.is_authenticated and call.notification_set.count > 0 %}
+{% if user.is_authenticated and call.submitify_notifications.count > 0 %}
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <h2>Notifications</h2>
-            {% for notification in call.notification_set.all %}
+            {% for notification in call.submitify_notifications.all %}
                 {% if user == call.owner or user in notification.targets.all %}
                     <div class="panel panel-{% if notification.notification_type == 'a' %}success{% elif notification.notification_type == 'r' %}danger{% else %}default{% endif %}">
                         <div class="panel-heading">
@@ -198,13 +198,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for submission in call.submission_set.all %}
+                    {% for submission in call.submitify_submissions.all %}
                         <tr>
                             <td>
                                 <a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a>
                                 {% if call.owner == user %}
                                     <p class="small">
-                                        {{ submission.review_set.count }}/{{ call.reviews_per_submission }} needed reviews &bullet;
+                                        {{ submission.submitify_reviews.count }}/{{ call.reviews_per_submission }} needed reviews &bullet;
                                         {% with stats=submission.get_review_stats %}
                                             <strong class="text-success">{{ stats.accept }}</strong>/<strong class="text-danger">{{ stats.reject }}</strong> &bullet;
                                             Average rating: {{ stats.average_rating }}

@@ -47,7 +47,8 @@ class Call(models.Model):
     invite_only = models.BooleanField(default=False)
     readers = models.ManyToManyField(User,
                                      related_name='submitify_calls_reading')
-    restricted_to = models.ManyToManyField(User, related_name='invitations')
+    restricted_to = models.ManyToManyField(
+        User, related_name='submitify_invitations')
     anonymous_submissions = models.BooleanField(default=True)
     readers_can_submit = models.BooleanField(default=False)
 
@@ -113,7 +114,7 @@ class Submission(models.Model):
     )
 
     owner = models.ForeignKey(User, related_name='submitify_submissions')
-    call = models.ForeignKey(Call)
+    call = models.ForeignKey(Call, related_name='submitify_submissions')
 
     # Basics
     title = models.CharField(max_length=200)
@@ -165,7 +166,7 @@ class Submission(models.Model):
         }[self.status]
 
     def get_review_stats(self):
-        reviews = self.review_set.all()
+        reviews = self.submitify_reviews.all()
         if len(reviews) == 0:
             return {
                 'total': 0,
@@ -190,8 +191,9 @@ class Review(models.Model):
         (REJECT, 'Reject'),
     )
 
-    owner = models.ForeignKey(User)
-    submission = models.ForeignKey(Submission)
+    owner = models.ForeignKey(User, related_name='submitify_reviews')
+    submission = models.ForeignKey(Submission,
+                                   related_name='submitify_reviews')
     ctime = models.DateTimeField(auto_now_add=True)
     mtime = models.DateTimeField(auto_now=True)
     rating = models.PositiveIntegerField()
@@ -222,8 +224,9 @@ class Notification(models.Model):
         ('r', 'Notification for rejected authors'),
     )
 
-    call = models.ForeignKey(Call)
-    targets = models.ManyToManyField(User)
+    call = models.ForeignKey(Call, related_name='submitify_notifications')
+    targets = models.ManyToManyField(User,
+                                     related_name='submitify_notifications')
     notification_type = models.CharField(max_length=1,
                                          choices=NOTIFICATION_TYPES)
     ctime = models.DateTimeField(auto_now_add=True)
