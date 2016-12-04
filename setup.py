@@ -9,9 +9,10 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-submitify',
-    version='0.0.9',
+    version='0.0.10',
     packages=find_packages(),
     include_package_data=True,
+    install_requires=['prose-wc', 'python-magic'],
     license='MIT License',
     description='A Django app to accept literary submissions.',
     long_description=README,
