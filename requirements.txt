@@ -3,7 +3,6 @@ bs4==0.0.1
 coverage==4.5.1
 Django==2.0.5
 Markdown==2.6.11
-pkg-resources==0.0.0
 prose-wc==0.3.4
 pypandoc==1.4
 python-magic==0.4.15
