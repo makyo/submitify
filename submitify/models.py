@@ -67,7 +67,7 @@ class Call(models.Model):
     def get_next_status(self):
         try:
             return self.STATUS_CHOICES[self.status]
-        except:
+        except IndexError:
             return None
 
     def __str__(self):
