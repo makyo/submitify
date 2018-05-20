@@ -4,7 +4,7 @@ from prose_wc import wc
 import pypandoc
 
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils import timezone
@@ -31,7 +31,8 @@ class Call(models.Model):
     )
     MAX_STATUS = CLOSED_FINAL
 
-    owner = models.ForeignKey(User, related_name='submitify_calls_editing')
+    owner = models.ForeignKey(
+        User, related_name='submitify_calls_editing', on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     status = models.PositiveIntegerField(choices=STATUS_CHOICES,
                                          default=NOT_OPEN_YET)
@@ -66,7 +67,7 @@ class Call(models.Model):
     def get_next_status(self):
         try:
             return self.STATUS_CHOICES[self.status]
-        except:
+        except IndexError:
             return None
 
     def __str__(self):
@@ -88,7 +89,7 @@ class Guideline(models.Model):
         'Contract information',
     )
 
-    call = models.ForeignKey(Call)
+    call = models.ForeignKey(Call, on_delete=models.CASCADE)
     key = models.CharField(max_length=100)
     value_raw = models.TextField()
     value_rendered = models.TextField()
@@ -113,8 +114,10 @@ class Submission(models.Model):
         (REJECTED, 'Rejected'),
     )
 
-    owner = models.ForeignKey(User, related_name='submitify_submissions')
-    call = models.ForeignKey(Call, related_name='submitify_submissions')
+    owner = models.ForeignKey(
+        User, related_name='submitify_submissions', on_delete=models.CASCADE)
+    call = models.ForeignKey(
+        Call, related_name='submitify_submissions', on_delete=models.CASCADE)
 
     # Basics
     title = models.CharField(max_length=200)
@@ -191,9 +194,10 @@ class Review(models.Model):
         (REJECT, 'Reject'),
     )
 
-    owner = models.ForeignKey(User, related_name='submitify_reviews')
-    submission = models.ForeignKey(Submission,
-                                   related_name='submitify_reviews')
+    owner = models.ForeignKey(
+        User, related_name='submitify_reviews', on_delete=models.CASCADE)
+    submission = models.ForeignKey(
+        Submission, related_name='submitify_reviews', on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
     mtime = models.DateTimeField(auto_now=True)
     rating = models.PositiveIntegerField()
@@ -224,7 +228,8 @@ class Notification(models.Model):
         ('r', 'Notification for rejected authors'),
     )
 
-    call = models.ForeignKey(Call, related_name='submitify_notifications')
+    call = models.ForeignKey(
+        Call, related_name='submitify_notifications', on_delete=models.CASCADE)
     targets = models.ManyToManyField(User,
                                      related_name='submitify_notifications')
     notification_type = models.CharField(max_length=1,
